@@ -349,6 +349,17 @@
   </div>
 </div>
 
+<!-- 日記管理 -->
+<div class="panel" id="panel-diaries">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div class="section-title" style="margin-bottom:0">📝 日記一覧</div>
+      <button class="btn btn-gray" onclick="loadDiaries()">🔄 更新</button>
+    </div>
+    <div id="diaryAdminList"><div style="text-align:center;color:#AAA;padding:20px">読み込み中...</div></div>
+  </div>
+</div>
+
 <!-- CSV出力 -->
 <div class="panel" id="panel-export">
   <div class="card">
@@ -500,6 +511,71 @@
       document.getElementById('newCourseName').value = '';
       setTimeout(() => document.getElementById('courseSuccess').style.display = 'none', 3000);
       loadCourses();
+    }
+  }
+
+  let allParticipants = {};
+  let allCourses = {};
+
+  async function loadDiaries() {
+    // 参加者マップと講座マップを事前に取得
+    const [pRes, cRes, dRes] = await Promise.all([
+      fetch(SUPABASE_URL + '/rest/v1/participants?select=id,nickname,real_name',
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }),
+      fetch(SUPABASE_URL + '/rest/v1/courses?select=course_code,course_name',
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }),
+      fetch(SUPABASE_URL + '/rest/v1/diaries?select=*&order=created_at.desc',
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } })
+    ]);
+
+    const participants = await pRes.json();
+    const courses = await cRes.json();
+    const diaries = await dRes.json();
+
+    participants.forEach(p => allParticipants[p.id] = p);
+    courses.forEach(c => allCourses[c.course_code] = c.course_name);
+
+    const list = document.getElementById('diaryAdminList');
+    if (!diaries.length) {
+      list.innerHTML = '<div style="text-align:center;color:#AAA;padding:20px">日記がありません</div>';
+      return;
+    }
+
+    list.innerHTML = diaries.map(d => {
+      const p = allParticipants[d.participant_id] || {};
+      const courseName = allCourses[d.course_code] || d.course_code;
+      const date = new Date(d.created_at).toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' });
+      const photos = [d.photo_url, d.photo_url2, d.photo_url3].filter(Boolean);
+      const photoHtml = photos.length > 0 ? '<div style="display:flex;gap:4px;margin:8px 0">' + photos.map(url => '<img src="' + url + '" style="width:60px;height:60px;object-fit:cover;border-radius:6px">').join('') + '</div>' : '';
+
+      return '<div style="background:#F9FAFB;border-radius:12px;padding:14px;margin-bottom:12px">' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:6px">' +
+          '<div><span style="font-weight:bold;color:var(--primary)">' + (p.nickname || '?') + '</span><span style="color:var(--muted);font-size:12px;margin-left:6px">' + (p.real_name || '') + '</span></div>' +
+          '<div style="font-size:12px;color:var(--muted)">' + date + '</div>' +
+        '</div>' +
+        '<div style="font-size:12px;color:var(--accent);margin-bottom:4px">📖 ' + courseName + '</div>' +
+        '<div style="font-size:14px;color:var(--text);margin-bottom:8px">' + d.diary_text + '</div>' +
+        photoHtml +
+        '<div style="margin-top:8px">' +
+          '<div style="font-size:12px;color:#48BB78;margin-bottom:4px">💬 スタッフコメント</div>' +
+          '<textarea id="comment_' + d.id + '" style="width:100%;padding:8px;border:2px solid #EEE;border-radius:8px;font-size:13px;font-family:Kosugi Maru,sans-serif;resize:vertical;min-height:60px;outline:none" placeholder="コメントを入力...">' + (d.staff_comment || '') + '</textarea>' +
+          '<button onclick="saveComment(' + d.id + ')" style="margin-top:6px;background:#48BB78;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-family:Kosugi Maru,sans-serif;cursor:pointer">💾 保存</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  async function saveComment(diaryId) {
+    const comment = document.getElementById('comment_' + diaryId).value.trim();
+    const res = await fetch(SUPABASE_URL + '/rest/v1/diaries?id=eq.' + diaryId, {
+      method: 'PATCH',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ staff_comment: comment || null })
+    });
+    if (res.ok) {
+      alert('コメントを保存しました！');
+    } else {
+      alert('保存に失敗しました。');
     }
   }
 
