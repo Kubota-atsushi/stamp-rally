@@ -280,7 +280,8 @@
 <div class="tab-group">
   <button class="tab active" onclick="switchTab('participants')">参加者一覧</button>
   <button class="tab" onclick="switchTab('add')">参加者追加</button>
-  <button class="tab" onclick="switchTab('courses')">講座管理</button>
+  <button class="tab" onclick="switchTab('diaries')">日記管理</button>
+  <button class="tab" onclick="switchTab('qr')">講座QR印刷</button>
   <button class="tab" onclick="switchTab('export')">CSV出力</button>
 </div>
 
@@ -387,12 +388,13 @@
 
   function switchTab(tab) {
     document.querySelectorAll('.tab').forEach((t, i) => {
-      const names = ['participants', 'add', 'courses', 'export'];
+      const names = ['participants', 'add', 'diaries', 'qr', 'export'];
       t.className = 'tab' + (names[i] === tab ? ' active' : '');
     });
     document.querySelectorAll('.panel').forEach(p => p.className = 'panel');
-    document.getElementById(`panel-${tab}`).className = 'panel active';
-    if (tab === 'courses') loadCourses();
+    document.getElementById('panel-' + tab).className = 'panel active';
+    if (tab === 'qr') loadQRCodes();
+    if (tab === 'diaries') loadDiaries();
   }
 
   async function loadAll() {
