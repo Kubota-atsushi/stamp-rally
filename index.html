@@ -3,82 +3,143 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>よみうりカルチャー自由が丘 スタンプラリー</title>
+<title>よみうりカルチャー自由が丘 なつやすみスタンプラリー</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap');
-  :root { --primary: #FF6B35; --accent: #4ECDC4; --bg: #FFF9F0; --card: #FFFFFF; --text: #2D2D2D; --muted: #888; }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Kosugi Maru', sans-serif; background: var(--bg); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; background-image: radial-gradient(circle at 20% 20%, #FFE0D0 0%, transparent 50%), radial-gradient(circle at 80% 80%, #D0F5F2 0%, transparent 50%); }
-  .container { width: 100%; max-width: 420px; }
-  .header { text-align: center; margin-bottom: 32px; }
-  .logo { font-size: 64px; margin-bottom: 8px; animation: bounce 2s infinite; }
-  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-  .title { font-size: 20px; font-weight: bold; color: var(--primary); line-height: 1.4; }
-  .subtitle { font-size: 13px; color: var(--muted); margin-top: 4px; }
-  .card { background: var(--card); border-radius: 24px; padding: 28px; box-shadow: 0 8px 32px rgba(0,0,0,0.08); margin-bottom: 16px; }
-  .card-title { font-size: 16px; font-weight: bold; color: var(--text); margin-bottom: 20px; text-align: center; }
-  label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
-  input[type="text"], input[type="date"], select {
-    width: 100%; padding: 14px 16px; border: 2px solid #EEE; border-radius: 12px;
-    font-size: 16px; font-family: 'Kosugi Maru', sans-serif; color: var(--text);
-    outline: none; margin-bottom: 14px; background: white;
+  :root {
+    --primary: #FF6B35;
+    --secondary: #FFD700;
+    --accent: #4ECDC4;
+    --pink: #FF69B4;
+    --purple: #9B59B6;
+    --bg: #FFF9F0;
+    --card: #FFFFFF;
+    --text: #2D2D2D;
+    --muted: #999;
   }
-  input[type="text"]:focus, input[type="date"]:focus, select:focus { border-color: var(--primary); }
-  .nickname-input { text-align: center; letter-spacing: 2px; font-size: 20px; }
-  .btn { width: 100%; padding: 16px; border: none; border-radius: 14px; font-size: 18px; font-family: 'Kosugi Maru', sans-serif; font-weight: bold; cursor: pointer; transition: transform 0.1s; margin-bottom: 10px; }
-  .btn:active { transform: scale(0.97); }
-  .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 0 #CC4A1A; }
-  .btn-accent { background: var(--accent); color: white; box-shadow: 0 4px 0 #2EA89F; }
-  .btn-gray { background: #F0F0F0; color: var(--muted); font-size: 15px; }
-  .btn-outline { background: white; color: var(--primary); border: 2px solid var(--primary); font-size: 15px; }
-  .error { background: #FFF0F0; border: 1px solid #FFCCCC; color: #CC3333; padding: 12px 16px; border-radius: 10px; font-size: 14px; margin-bottom: 12px; display: none; }
-  .loading { text-align: center; color: var(--muted); font-size: 14px; margin-bottom: 12px; display: none; }
-  .stars { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; font-size: 24px; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Kosugi Maru', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-x: hidden;
+  }
+
+  /* 背景の星 */
+  .bg-stars { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .bg-star { position: absolute; border-radius: 50%; animation: twinkle 2s infinite; }
+  @keyframes twinkle { 0%,100%{opacity:0.3;transform:scale(1)} 50%{opacity:1;transform:scale(1.3)} }
+
+  .container { width: 100%; max-width: 420px; position: relative; z-index: 1; }
+
+  /* ヘッダー */
+  .hero { text-align: center; margin-bottom: 24px; }
+  .hero-emoji { font-size: 72px; display: block; animation: heroFloat 3s ease-in-out infinite; filter: drop-shadow(0 8px 16px rgba(255,107,53,0.3)); }
+  @keyframes heroFloat { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-12px) rotate(3deg)} }
+  .hero-title { font-size: 22px; font-weight: bold; color: var(--primary); line-height: 1.4; margin-top: 12px; text-shadow: 2px 2px 0 rgba(255,107,53,0.15); }
+  .hero-sub { font-size: 13px; color: var(--muted); margin-top: 6px; }
+
+  /* スタンプ装飾 */
+  .stamp-row { display: flex; justify-content: center; gap: 6px; margin-bottom: 20px; }
+  .mini-stamp { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 3px 0 rgba(0,0,0,0.1); animation: stampBounce 1.5s ease infinite; }
+  .mini-stamp:nth-child(1) { background: linear-gradient(135deg, #FF6B35, #FF8C5A); animation-delay: 0s; }
+  .mini-stamp:nth-child(2) { background: linear-gradient(135deg, #FFD700, #FFA500); animation-delay: 0.2s; }
+  .mini-stamp:nth-child(3) { background: linear-gradient(135deg, #4ECDC4, #44A8A0); animation-delay: 0.4s; }
+  .mini-stamp:nth-child(4) { background: linear-gradient(135deg, #FF69B4, #FF1493); animation-delay: 0.6s; }
+  .mini-stamp:nth-child(5) { background: linear-gradient(135deg, #9B59B6, #8E44AD); animation-delay: 0.8s; }
+  @keyframes stampBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+
+  /* カード */
+  .card { background: var(--card); border-radius: 28px; padding: 28px; box-shadow: 0 8px 32px rgba(255,107,53,0.12), 0 2px 8px rgba(0,0,0,0.04); margin-bottom: 16px; border: 2px solid rgba(255,107,53,0.1); }
+  .card-title { font-size: 16px; font-weight: bold; color: var(--text); margin-bottom: 20px; text-align: center; }
+
+  /* タブ */
+  .tab-group { display: flex; gap: 8px; margin-bottom: 20px; background: #F5F5F5; padding: 4px; border-radius: 14px; }
+  .tab { flex: 1; padding: 10px; border: none; border-radius: 10px; font-size: 14px; font-family: 'Kosugi Maru', sans-serif; cursor: pointer; background: transparent; color: var(--muted); transition: all 0.2s; }
+  .tab.active { background: white; color: var(--primary); font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
   .panel { display: none; }
   .panel.active { display: block; }
-  .tab-group { display: flex; gap: 8px; margin-bottom: 20px; }
-  .tab { flex: 1; padding: 10px; border: none; border-radius: 10px; font-size: 14px; font-family: 'Kosugi Maru', sans-serif; cursor: pointer; background: #EEE; color: var(--muted); }
-  .tab.active { background: var(--primary); color: white; }
 
-  /* 保存済みニックネーム確認 */
-  .saved-nickname-box { background: #FFF3E0; border: 2px solid var(--primary); border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 16px; }
-  .saved-nickname-label { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
-  .saved-nickname-name { font-size: 28px; font-weight: bold; color: var(--primary); margin-bottom: 16px; }
+  /* 入力欄 */
+  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; letter-spacing: 0.5px; }
+  .input-wrap { position: relative; margin-bottom: 14px; }
+  .input-wrap input { width: 100%; padding: 14px 16px 14px 44px; border: 2px solid #EEE; border-radius: 14px; font-size: 16px; font-family: 'Kosugi Maru', sans-serif; color: var(--text); outline: none; transition: border-color 0.2s, box-shadow 0.2s; background: white; }
+  .input-wrap input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(255,107,53,0.1); }
+  .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; }
+  .input-wrap.center input { text-align: center; padding-left: 16px; font-size: 20px; letter-spacing: 2px; }
+
+  /* ボタン */
+  .btn { width: 100%; padding: 16px; border: none; border-radius: 16px; font-size: 17px; font-family: 'Kosugi Maru', sans-serif; font-weight: bold; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; margin-bottom: 10px; letter-spacing: 0.5px; }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: linear-gradient(135deg, #FF6B35, #FF8C5A); color: white; box-shadow: 0 4px 0 #CC4A1A, 0 6px 16px rgba(255,107,53,0.3); }
+  .btn-primary:hover { box-shadow: 0 6px 0 #CC4A1A, 0 8px 20px rgba(255,107,53,0.4); transform: translateY(-2px); }
+  .btn-accent { background: linear-gradient(135deg, #4ECDC4, #44A8A0); color: white; box-shadow: 0 4px 0 #2EA89F, 0 6px 16px rgba(78,205,196,0.3); }
+  .btn-accent:hover { box-shadow: 0 6px 0 #2EA89F; transform: translateY(-2px); }
+  .btn-gray { background: #F5F5F5; color: var(--muted); font-size: 14px; box-shadow: none; border: 1px solid #EEE; }
+
+  /* エラー */
+  .error { background: #FFF0F0; border: 1px solid #FFD0D0; color: #CC3333; padding: 12px 16px; border-radius: 12px; font-size: 14px; margin-bottom: 12px; display: none; }
+  .loading { text-align: center; color: var(--muted); font-size: 14px; margin-bottom: 12px; display: none; }
+
+  /* チェックボックス */
+  .remember-box { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; font-size: 13px; color: var(--muted); }
+  .remember-box input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); }
+
+  /* 性別ボタン */
+  .gender-group { display: flex; gap: 10px; margin-bottom: 14px; }
+  .gender-btn { flex: 1; padding: 12px; border: 2px solid #EEE; border-radius: 12px; font-size: 15px; font-family: 'Kosugi Maru', sans-serif; cursor: pointer; background: white; color: var(--muted); transition: all 0.2s; }
+  .gender-btn.selected { border-color: var(--primary); background: #FFF3EE; color: var(--primary); font-weight: bold; }
+
+  /* 候補チップ */
+  .suggestions { margin-bottom: 14px; }
+  .suggestions-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .suggestion-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { padding: 8px 16px; background: #FFF3EE; border: 2px solid var(--primary); border-radius: 20px; font-size: 14px; color: var(--primary); cursor: pointer; font-family: 'Kosugi Maru', sans-serif; transition: all 0.2s; }
+  .chip:hover { background: var(--primary); color: white; }
+
+  /* 保存済みニックネーム */
+  .saved-box { background: linear-gradient(135deg, #FFF3EE, #FFF9F0); border: 2px solid rgba(255,107,53,0.2); border-radius: 20px; padding: 20px; text-align: center; margin-bottom: 4px; }
+  .saved-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .saved-name { font-size: 30px; font-weight: bold; color: var(--primary); margin-bottom: 16px; }
   .btn-row { display: flex; gap: 10px; }
   .btn-row .btn { margin-bottom: 0; }
 
-  /* 候補ニックネーム */
-  .suggestions { margin-bottom: 14px; }
-  .suggestions-label { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
-  .suggestion-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-  .chip { padding: 8px 16px; background: #FFF3E0; border: 2px solid var(--primary); border-radius: 20px; font-size: 14px; color: var(--primary); cursor: pointer; font-family: 'Kosugi Maru', sans-serif; transition: all 0.2s; }
-  .chip:hover { background: var(--primary); color: white; }
-
-  /* 性別選択 */
-  .gender-group { display: flex; gap: 10px; margin-bottom: 14px; }
-  .gender-btn { flex: 1; padding: 12px; border: 2px solid #EEE; border-radius: 12px; font-size: 15px; font-family: 'Kosugi Maru', sans-serif; cursor: pointer; background: white; color: var(--muted); transition: all 0.2s; }
-  .gender-btn.selected { border-color: var(--primary); background: #FFF3E0; color: var(--primary); font-weight: bold; }
-
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .form-row > div { display: flex; flex-direction: column; }
+  .form-row input { padding: 12px; font-size: 14px; border-radius: 12px; margin-bottom: 0; }
 </style>
 </head>
 <body>
+
+<!-- 背景の星 -->
+<div class="bg-stars" id="bgStars"></div>
+
 <div class="container">
-  <div class="header">
-    <div class="logo">🎪</div>
-    <div class="title">よみうりカルチャー自由が丘<br>なつやすみスタンプラリー</div>
-    <div class="subtitle">2026年 夏</div>
+  <div class="hero">
+    <span class="hero-emoji">🎪</span>
+    <div class="hero-title">よみうりカルチャー自由が丘<br>なつやすみスタンプラリー</div>
+    <div class="hero-sub">2026年 夏</div>
+  </div>
+
+  <div class="stamp-row">
+    <div class="mini-stamp">🌟</div>
+    <div class="mini-stamp">🎯</div>
+    <div class="mini-stamp">🎨</div>
+    <div class="mini-stamp">🎵</div>
+    <div class="mini-stamp">🏆</div>
   </div>
 
   <div class="card">
-    <div class="stars">⭐🌟⭐</div>
-
-    <!-- 保存済みニックネーム確認画面 -->
+    <!-- 保存済みニックネーム確認 -->
     <div id="savedSection" style="display:none">
-      <div class="saved-nickname-box">
-        <div class="saved-nickname-label">前回のニックネーム</div>
-        <div class="saved-nickname-name" id="savedNicknameDisplay"></div>
+      <div class="saved-box">
+        <div class="saved-label">まえかいのニックネーム</div>
+        <div class="saved-name" id="savedNicknameDisplay"></div>
         <div class="btn-row">
           <button class="btn btn-primary" onclick="loginWithSaved()">✅ このままログイン</button>
           <button class="btn btn-gray" onclick="showOtherOptions()">別の人</button>
@@ -86,45 +147,47 @@
       </div>
     </div>
 
-    <!-- タブ（保存なし or 別の人を選択時） -->
+    <!-- タブ -->
     <div id="tabSection" style="display:none">
       <div class="tab-group">
         <button class="tab active" id="tab-login" onclick="switchTab('login')">ログイン</button>
         <button class="tab" id="tab-register" onclick="switchTab('register')">はじめての人</button>
       </div>
 
-      <!-- ログインパネル -->
+      <!-- ログイン -->
       <div class="panel active" id="panel-login">
         <div class="card-title">ニックネームでログイン</div>
         <div class="error" id="loginError"></div>
         <div class="loading" id="loginLoading">⏳ 確認中...</div>
         <label>ニックネーム</label>
-        <input type="text" id="loginNickname" class="nickname-input" placeholder="例：たろう" autocomplete="off">
+        <div class="input-wrap center">
+          <input type="text" id="loginNickname" placeholder="例：たろう" autocomplete="off">
+        </div>
         <button class="btn btn-primary" onclick="login()">🎯 マイページへ</button>
       </div>
 
-      <!-- 登録パネル -->
+      <!-- 登録 -->
       <div class="panel" id="panel-register">
         <div class="card-title">はじめての登録</div>
         <div class="error" id="registerError"></div>
         <div class="loading" id="registerLoading">⏳ 登録中...</div>
-
         <label>ニックネーム（好きな名前）</label>
-        <input type="text" id="registerNickname" class="nickname-input" placeholder="例：たろう" autocomplete="off" oninput="clearSuggestions()">
-
-        <!-- 重複時の候補 -->
+        <div class="input-wrap center">
+          <input type="text" id="registerNickname" placeholder="例：たろう" autocomplete="off" oninput="clearSuggestions()">
+        </div>
         <div class="suggestions" id="suggestionsDiv" style="display:none">
           <div class="suggestions-label">💡 このニックネームはどうかな？</div>
           <div class="suggestion-chips" id="suggestionChips"></div>
         </div>
-
         <label>本名（カタカナで入力）</label>
-        <input type="text" id="registerRealName" placeholder="例：ヤマダタロウ" autocomplete="off" oninput="toKatakana(this)">
-
+        <div class="input-wrap">
+          <span class="input-icon">👤</span>
+          <input type="text" id="registerRealName" placeholder="例：ヤマダタロウ" autocomplete="off" oninput="toKatakana(this)">
+        </div>
         <div class="form-row">
           <div>
             <label>生年月日</label>
-            <input type="date" id="registerBirthdate">
+            <input type="date" id="registerBirthdate" style="padding:12px;border:2px solid #EEE;border-radius:12px;font-family:Kosugi Maru,sans-serif;outline:none;width:100%;margin-bottom:14px">
           </div>
           <div>
             <label>性別</label>
@@ -134,22 +197,31 @@
             </div>
           </div>
         </div>
-
         <button class="btn btn-accent" onclick="register()">✨ 登録してはじめる</button>
       </div>
     </div>
   </div>
 
-  <button class="btn btn-gray" onclick="location.href='reception.html'" style="margin-top:0">📋 受付スタッフはこちら</button>
+  <button class="btn btn-gray" onclick="location.href='reception.html'">📋 受付スタッフはこちら</button>
+  <div style="text-align:center;font-size:11px;color:#BBB;margin-top:12px">※このアプリは2026年9月30日まで使用可能です</div>
 </div>
 
 <script>
   const SUPABASE_URL = 'https://xxtqlxfknmbbfjdidjjl.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh4dHFseGZrbm1iYmZqZGlkampsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzM5MjIsImV4cCI6MjA5NjMwOTkyMn0.gtvl8xfz6a6axkn7OYsmZVGubIiVY5QRCWBiNY2oUwU';
-
   let selectedGender = '';
 
-  // 起動時：保存済みニックネームを確認
+  // 背景の星を生成
+  const bgStars = document.getElementById('bgStars');
+  const starColors = ['#FFD700','#FF6B35','#4ECDC4','#FF69B4','#9B59B6'];
+  for (let i = 0; i < 20; i++) {
+    const star = document.createElement('div');
+    star.className = 'bg-star';
+    const size = Math.random() * 8 + 4;
+    star.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;background:${starColors[Math.floor(Math.random()*starColors.length)]};opacity:0.4;animation-delay:${Math.random()*2}s;animation-duration:${Math.random()*2+1.5}s`;
+    bgStars.appendChild(star);
+  }
+
   const savedNickname = localStorage.getItem('stamp_nickname');
   if (savedNickname) {
     document.getElementById('savedNicknameDisplay').textContent = savedNickname + ' さん';
@@ -164,8 +236,7 @@
   }
 
   async function loginWithSaved() {
-    const nickname = savedNickname;
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/participants?nickname=eq.${encodeURIComponent(nickname)}&select=*`,
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/participants?nickname=eq.${encodeURIComponent(savedNickname)}&select=*`,
       { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } });
     const data = await res.json();
     if (data && data.length > 0) {
@@ -188,8 +259,7 @@
     const errorDiv = document.getElementById('loginError');
     const loading = document.getElementById('loginLoading');
     if (!nickname) { errorDiv.style.display = 'block'; errorDiv.textContent = 'ニックネームを入力してね！'; return; }
-    errorDiv.style.display = 'none';
-    loading.style.display = 'block';
+    errorDiv.style.display = 'none'; loading.style.display = 'block';
     const res = await fetch(`${SUPABASE_URL}/rest/v1/participants?nickname=eq.${encodeURIComponent(nickname)}&select=*`,
       { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } });
     const data = await res.json();
@@ -203,26 +273,18 @@
     location.href = `mypage.html?id=${data[0].id}`;
   }
 
-  // カタカナ変換
   function toKatakana(input) {
-    input.value = input.value.replace(/[\u3041-\u3096]/g, ch =>
-      String.fromCharCode(ch.charCodeAt(0) + 0x60)
-    );
+    input.value = input.value.replace(/[\u3041-\u3096]/g, ch => String.fromCharCode(ch.charCodeAt(0) + 0x60));
   }
 
-  // 性別選択
   function selectGender(gender) {
     selectedGender = gender;
     document.getElementById('gender-male').className = 'gender-btn' + (gender === 'male' ? ' selected' : '');
     document.getElementById('gender-female').className = 'gender-btn' + (gender === 'female' ? ' selected' : '');
   }
 
-  // 候補クリア
-  function clearSuggestions() {
-    document.getElementById('suggestionsDiv').style.display = 'none';
-  }
+  function clearSuggestions() { document.getElementById('suggestionsDiv').style.display = 'none'; }
 
-  // 候補を選択
   function selectSuggestion(name) {
     document.getElementById('registerNickname').value = name;
     document.getElementById('suggestionsDiv').style.display = 'none';
@@ -234,29 +296,23 @@
     const birthdate = document.getElementById('registerBirthdate').value;
     const errorDiv = document.getElementById('registerError');
     const loading = document.getElementById('registerLoading');
-
     if (!nickname) { errorDiv.style.display = 'block'; errorDiv.textContent = 'ニックネームを入力してね！'; return; }
     if (!realName) { errorDiv.style.display = 'block'; errorDiv.textContent = '本名をカタカナで入力してね！'; return; }
     if (!/^[ァ-ヶー\s]+$/.test(realName)) { errorDiv.style.display = 'block'; errorDiv.textContent = '本名はカタカナで入力してね！'; return; }
     if (!birthdate) { errorDiv.style.display = 'block'; errorDiv.textContent = '生年月日を入力してね！'; return; }
     if (!selectedGender) { errorDiv.style.display = 'block'; errorDiv.textContent = '性別を選んでね！'; return; }
-
-    errorDiv.style.display = 'none';
-    loading.style.display = 'block';
-
+    errorDiv.style.display = 'none'; loading.style.display = 'block';
     const res = await fetch(`${SUPABASE_URL}/rest/v1/participants`, {
       method: 'POST',
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
       body: JSON.stringify({ nickname, real_name: realName, birthdate, gender: selectedGender })
     });
     loading.style.display = 'none';
-
     if (res.ok) {
       const data = await res.json();
       localStorage.setItem('stamp_nickname', nickname);
       location.href = `mypage.html?id=${data[0].id}`;
     } else {
-      // 重複エラー → 候補を表示
       errorDiv.style.display = 'block';
       errorDiv.textContent = 'そのニックネームはすでに使われています。下の候補から選んでね！';
       showSuggestions(nickname);
@@ -264,25 +320,14 @@
   }
 
   function showSuggestions(base) {
-    const suggestions = [
-      base + '02',
-      base + 'くん',
-      base + 'ちゃん',
-      base + '2026',
-      base.slice(0, -1) + 'ちゃん',
-    ].filter((v, i, a) => a.indexOf(v) === i).slice(0, 4);
-
+    const suggestions = [base+'02', base+'くん', base+'ちゃん', base+'2026'].slice(0, 4);
     const chips = document.getElementById('suggestionChips');
-    chips.innerHTML = suggestions.map(s =>
-      `<button class="chip" onclick="selectSuggestion('${s}')">${s}</button>`
-    ).join('');
+    chips.innerHTML = suggestions.map(s => `<button class="chip" onclick="selectSuggestion('${s}')">${s}</button>`).join('');
     document.getElementById('suggestionsDiv').style.display = 'block';
   }
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      if (document.getElementById('panel-login') && document.getElementById('panel-login').className.includes('active')) login();
-    }
+    if (e.key === 'Enter' && document.getElementById('panel-login').className.includes('active')) login();
   });
 </script>
 </body>

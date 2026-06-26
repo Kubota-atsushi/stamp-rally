@@ -8,19 +8,20 @@
   @import url('https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap');
   :root { --primary: #FF6B35; --accent: #4ECDC4; --bg: #FFF9F0; --card: #FFFFFF; --text: #2D2D2D; --muted: #888; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Kosugi Maru', sans-serif; background: var(--bg); min-height: 100vh; padding: 16px; background-image: radial-gradient(circle at 20% 20%, #FFE0D0 0%, transparent 50%), radial-gradient(circle at 80% 80%, #D0F5F2 0%, transparent 50%); }
-  .header { text-align: center; margin-bottom: 20px; padding-top: 8px; }
-  .header-title { font-size: 16px; font-weight: bold; color: var(--primary); }
-  .card { background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); margin-bottom: 16px; }
-  .welcome-name { font-size: 24px; font-weight: bold; color: var(--text); text-align: center; }
+  body { font-family: 'Kosugi Maru', sans-serif; background: var(--bg); min-height: 100vh; padding: 16px; background-image: radial-gradient(circle at 10% 10%, #FFE0D0 0%, transparent 40%), radial-gradient(circle at 90% 90%, #D0F5F2 0%, transparent 40%); }
+  .header { text-align: center; margin-bottom: 16px; padding-top: 8px; }
+  .header-title { font-size: 14px; font-weight: bold; color: var(--primary); }
+  .card { background: var(--card); border-radius: 24px; padding: 20px; box-shadow: 0 6px 24px rgba(255,107,53,0.08), 0 2px 8px rgba(0,0,0,0.04); margin-bottom: 16px; border: 1.5px solid rgba(255,107,53,0.08); }
+  .welcome-name { font-size: 26px; font-weight: bold; color: var(--text); text-align: center; }
   .welcome-sub { font-size: 13px; color: var(--muted); margin-top: 4px; text-align: center; }
   .stamp-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 12px; }
-  .stamp { aspect-ratio: 1; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 22px; }
-  .stamp.on { background: linear-gradient(135deg, #FF6B35, #FF8C5A); box-shadow: 0 4px 0 #CC4A1A; animation: stampIn 0.4s ease; }
-  .stamp.off { background: #F0F0F0; border: 2px dashed #DDD; }
-  .stamp.exchanged3 { background: linear-gradient(135deg, #48BB78, #38A169); box-shadow: 0 4px 0 #276749; }
-  .stamp.exchanged5 { background: linear-gradient(135deg, #4ECDC4, #2C9E96); box-shadow: 0 4px 0 #1a7a73; }
-  @keyframes stampIn { 0%{transform:scale(0)} 60%{transform:scale(1.2)} 100%{transform:scale(1)} }
+  .stamp { aspect-ratio: 1; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 22px; transition: transform 0.2s; }
+  .stamp.on { background: linear-gradient(135deg, #FF6B35, #FF8C5A); box-shadow: 0 4px 0 #CC4A1A, 0 6px 12px rgba(255,107,53,0.25); animation: stampIn 0.4s ease; }
+  .stamp.on:active { transform: scale(0.95); }
+  .stamp.off { background: linear-gradient(135deg, #F5F5F5, #EBEBEB); border: 2px dashed #DDD; }
+  .stamp.exchanged3 { background: linear-gradient(135deg, #48BB78, #38A169); box-shadow: 0 4px 0 #276749, 0 6px 12px rgba(72,187,120,0.25); }
+  .stamp.exchanged5 { background: linear-gradient(135deg, #4ECDC4, #2C9E96); box-shadow: 0 4px 0 #1a7a73, 0 6px 12px rgba(78,205,196,0.25); }
+  @keyframes stampIn { 0%{transform:scale(0) rotate(-10deg)} 60%{transform:scale(1.2) rotate(3deg)} 100%{transform:scale(1) rotate(0)} }
   .stamp-number { font-size: 10px; color: rgba(255,255,255,0.8); margin-top: 2px; }
   .stamp-exchanged-label { font-size: 9px; color: rgba(255,255,255,0.9); margin-top: 1px; }
   .stamp.off .stamp-number { color: #CCC; }
@@ -42,9 +43,9 @@
   .diary-select { width: 100%; padding: 12px; border: 2px solid #EEE; border-radius: 10px; font-size: 14px; font-family: 'Kosugi Maru', sans-serif; color: var(--text); outline: none; background: white; }
   textarea { width: 100%; padding: 12px; border: 2px solid #EEE; border-radius: 10px; font-size: 14px; font-family: 'Kosugi Maru', sans-serif; color: var(--text); resize: vertical; min-height: 100px; outline: none; }
   textarea:focus { border-color: var(--primary); }
-  .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-family: 'Kosugi Maru', sans-serif; font-weight: bold; cursor: pointer; transition: transform 0.1s; }
+  .btn { width: 100%; padding: 14px; border: none; border-radius: 14px; font-size: 16px; font-family: 'Kosugi Maru', sans-serif; font-weight: bold; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; }
   .btn:active { transform: scale(0.97); }
-  .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 0 #CC4A1A; }
+  .btn-primary { background: linear-gradient(135deg, #FF6B35, #FF8C5A); color: white; box-shadow: 0 4px 0 #CC4A1A, 0 6px 16px rgba(255,107,53,0.25); }
   .btn-accent { background: var(--accent); color: white; box-shadow: 0 4px 0 #2EA89F; }
   .success-msg { background: #F0FFF4; border: 1px solid #9AE6B4; color: #276749; padding: 10px 14px; border-radius: 10px; font-size: 13px; display: none; margin-top: 8px; }
   .error-msg { background: #FFF0F0; border: 1px solid #FFCCCC; color: #CC3333; padding: 10px 14px; border-radius: 10px; font-size: 13px; display: none; margin-top: 8px; }
@@ -53,14 +54,14 @@
   .photo-upload { border: 2px dashed #DDD; border-radius: 10px; padding: 16px; text-align: center; cursor: pointer; transition: border-color 0.2s; }
   .photo-upload:hover { border-color: var(--primary); }
   .photo-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 10px; display: none; margin-top: 8px; }
-  .diary-item { background: #FFF9F0; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+  .diary-item { background: #FFF9F0; border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1.5px solid rgba(255,107,53,0.08); }
   .diary-item-course { font-size: 13px; font-weight: bold; color: var(--primary); margin-bottom: 6px; }
   .diary-item-text { font-size: 14px; color: var(--text); line-height: 1.6; }
   .diary-item-photo { width: 100%; border-radius: 8px; margin-top: 8px; }
   .diary-item-date { font-size: 11px; color: var(--muted); margin-top: 6px; }
-  .tab-group { display: flex; gap: 8px; margin-bottom: 16px; }
-  .tab { flex: 1; padding: 10px; border: none; border-radius: 10px; font-size: 13px; font-family: 'Kosugi Maru', sans-serif; cursor: pointer; background: #EEE; color: var(--muted); }
-  .tab.active { background: var(--primary); color: white; }
+  .tab-group { display: flex; gap: 8px; margin-bottom: 16px; background: #F5F5F5; padding: 4px; border-radius: 14px; }
+  .tab { flex: 1; padding: 10px; border: none; border-radius: 10px; font-size: 13px; font-family: 'Kosugi Maru', sans-serif; cursor: pointer; background: transparent; color: var(--muted); transition: all 0.2s; }
+  .tab.active { background: white; color: var(--primary); font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
   .panel { display: none; }
   .panel.active { display: block; }
   .back-link { text-align: center; margin-bottom: 12px; }
@@ -138,6 +139,7 @@
 </div>
 
 <div class="back-link"><a href="index.html">← ログイン画面に戻る</a></div>
+<div style="text-align:center;font-size:11px;color:#BBB;margin-bottom:8px">※このアプリは2026年9月30日まで使用可能です</div>
 
 <!-- 日記保存エフェクト -->
 <div class="save-overlay" id="saveOverlay"></div>
@@ -166,9 +168,9 @@
 </div>
 
 <div id="mainContent" style="display:none">
-  <div class="card">
-    <div class="welcome-name">🌟 <span id="userName"></span> さん</div>
-    <div class="welcome-sub">今年の夏もがんばろう！</div>
+  <div class="card" style="background:linear-gradient(135deg,#FF6B35,#FF8C5A);border:none">
+    <div class="welcome-name" style="color:white">🌟 <span id="userName"></span> さん</div>
+    <div class="welcome-sub" style="color:rgba(255,255,255,0.85)">今年の夏もがんばろう！✨</div>
   </div>
 
   <div class="card">

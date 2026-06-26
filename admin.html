@@ -121,7 +121,7 @@
     <p style="font-size:12px;color:var(--muted);margin-bottom:12px">名前をタップするとスタンプ詳細・削除・プレゼント交換ができます</p>
     <div style="overflow-x:auto">
       <table>
-        <thead><tr><th>ニックネーム</th><th>本名</th><th>スタンプ</th></tr></thead>
+        <thead><tr><th>ニックネーム</th><th>本名</th><th>スタンプ</th><th></th></tr></thead>
         <tbody id="participantTable"><tr><td colspan="3" style="text-align:center;color:#AAA;padding:20px">読み込み中...</td></tr></tbody>
       </table>
     </div>
@@ -310,6 +310,31 @@
   }
 
   function closeModal() { document.getElementById('stampModal').className = 'modal'; }
+
+  async function deleteParticipant(participantId, nickname) {
+    if (!confirm(nickname + 'さんを削除しますか？\nスタンプ・日記データも全て削除されます。')) return;
+    // スタンプ削除
+    await fetch(SUPABASE_URL + '/rest/v1/stamps?participant_id=eq.' + participantId, {
+      method: 'DELETE',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+    });
+    // 日記削除
+    await fetch(SUPABASE_URL + '/rest/v1/diaries?participant_id=eq.' + participantId, {
+      method: 'DELETE',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+    });
+    // 参加者削除
+    const res = await fetch(SUPABASE_URL + '/rest/v1/participants?id=eq.' + participantId, {
+      method: 'DELETE',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+    });
+    if (res.ok) {
+      alert(nickname + 'さんを削除しました。');
+      loadParticipants();
+    } else {
+      alert('削除に失敗しました。');
+    }
+  }
 
   async function addParticipant() {
     const nickname = document.getElementById('newNickname').value.trim();
