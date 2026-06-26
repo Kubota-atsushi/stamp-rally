@@ -238,6 +238,7 @@
   const SUPABASE_URL = 'https://xxtqlxfknmbbfjdidjjl.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh4dHFseGZrbm1iYmZqZGlkampsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzM5MjIsImV4cCI6MjA5NjMwOTkyMn0.gtvl8xfz6a6axkn7OYsmZVGubIiVY5QRCWBiNY2oUwU';
 
+  const WORKER_URL = 'https://stamp-photo-upload.a-kubota.workers.dev';
   const params = new URLSearchParams(location.search);
   const participantId = params.get('id');
   let courseMap = {};
@@ -450,9 +451,26 @@
     errorMsg.style.display = 'none';
     if (!course || !text) { alert('講座と日記の内容を入力してね！'); return; }
 
-    // 写真は今後Cloudflare Workers経由でアップロード予定
-    // 現在はBase64をSupabaseに直接保存（小さいサイズのみ）
-    const photoUrls = compressedImages.slice(0, 3);
+    // Cloudflare Workers経由で写真をR2にアップロード
+    const photoUrls = [];
+    for (let i = 0; i < compressedImages.length; i++) {
+      try {
+        const uploadRes = await fetch(WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            imageData: compressedImages[i],
+            fileName: 'photo' + (i+1) + '.jpg',
+            participantId: participantId
+          })
+        });
+        const uploadData = await uploadRes.json();
+        if (uploadData.url) photoUrls.push(uploadData.url);
+      } catch (e) {
+        console.error('Photo upload failed:', e);
+        photoUrls.push(null);
+      }
+    }
 
     const res = await fetch(`${SUPABASE_URL}/rest/v1/diaries`, {
       method: 'POST',
