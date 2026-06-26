@@ -64,6 +64,20 @@
   .panel { display: none; }
   .panel.active { display: block; }
   .back-link { text-align: center; margin-bottom: 12px; }
+
+  /* 日記保存エフェクト */
+  .save-effect { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); background: white; border-radius: 24px; padding: 32px 40px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.2); z-index: 300; transition: transform 0.3s ease; pointer-events: none; }
+  .save-effect.show { transform: translate(-50%, -50%) scale(1); }
+  .save-effect.hide { transform: translate(-50%, -50%) scale(0); transition: transform 0.2s ease; }
+  .save-effect-icon { font-size: 56px; margin-bottom: 8px; animation: saveIconBounce 0.5s ease; }
+  .save-effect-text { font-size: 18px; font-weight: bold; color: var(--primary); }
+  @keyframes saveIconBounce { 0%{transform:scale(0) rotate(-10deg)} 60%{transform:scale(1.3) rotate(5deg)} 100%{transform:scale(1) rotate(0)} }
+  @keyframes flyPlane { 0%{transform:translate(-100px, 0) rotate(-10deg);opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{transform:translate(calc(100vw + 100px), -80px) rotate(-10deg);opacity:0} }
+  @keyframes flyPlane2 { 0%{transform:translate(-100px, 0) rotate(-5deg);opacity:0} 15%{opacity:1} 85%{opacity:1} 100%{transform:translate(calc(100vw + 100px), 60px) rotate(-5deg);opacity:0} }
+  .paper-plane { position: fixed; font-size: 40px; pointer-events: none; z-index: 301; }
+  .paper-plane.p1 { animation: flyPlane 1.2s ease-in-out forwards; }
+  .paper-plane.p2 { animation: flyPlane2 1.5s ease-in-out forwards; animation-delay: 0.2s; font-size: 28px; }
+  .save-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); z-index: 299; display: none; }
   .btn-download { background: #667EEA; color: white; box-shadow: 0 4px 0 #4C63D2; }
   .photo-grid-1 { width: 100%; }
   .photo-grid-1 img { width: 100%; border-radius: 8px; object-fit: contain; max-height: 300px; background: #f0f0f0; }
@@ -121,6 +135,13 @@
 </div>
 
 <div class="back-link"><a href="index.html">← ログイン画面に戻る</a></div>
+
+<!-- 日記保存エフェクト -->
+<div class="save-overlay" id="saveOverlay"></div>
+<div class="save-effect" id="saveEffect">
+  <div class="save-effect-icon">✏️</div>
+  <div class="save-effect-text">日記を保存したよ！✨</div>
+</div>
 
 <!-- 花火エフェクト -->
 <div class="firework-container" id="fireworkContainer"></div>
@@ -208,7 +229,7 @@
 
     <div class="panel" id="panel-list">
       <div id="diaryList"><div class="empty-msg">まだ日記がありません</div></div>
-      <button class="btn btn-download" onclick="downloadDiaryPDF()" style="margin-top:12px">📥 日記をPDFでダウンロード</button>
+      <button class="btn btn-download" onclick="downloadDiaryPDF()" style="margin-top:12px">📥 日記を全部ダウンロード</button>
     </div>
   </div>
 </div>
@@ -343,6 +364,42 @@
     if (tab === 'list') loadDiaries();
   }
 
+  function showSaveEffect() {
+    const effect = document.getElementById('saveEffect');
+    const overlay = document.getElementById('saveOverlay');
+    overlay.style.display = 'block';
+    effect.className = 'save-effect show';
+
+    const icons = ['✏️', '📝', '🌟', '🎉', '💫', '🌈'];
+    effect.querySelector('.save-effect-icon').textContent = icons[Math.floor(Math.random() * icons.length)];
+
+    // 紙飛行機を飛ばす
+    launchPaperPlanes();
+
+    setTimeout(() => {
+      effect.className = 'save-effect hide';
+      overlay.style.display = 'none';
+    }, 1800);
+  }
+
+  function launchPaperPlanes() {
+    const positions = [
+      { top: '30%', cls: 'p1' },
+      { top: '55%', cls: 'p2' },
+      { top: '70%', cls: 'p1', delay: '0.4s', size: '24px' },
+    ];
+    positions.forEach(p => {
+      const plane = document.createElement('div');
+      plane.className = 'paper-plane ' + p.cls;
+      plane.textContent = '✈️';
+      plane.style.top = p.top;
+      if (p.delay) plane.style.animationDelay = p.delay;
+      if (p.size) plane.style.fontSize = p.size;
+      document.body.appendChild(plane);
+      setTimeout(() => plane.remove(), 2000);
+    });
+  }
+
   function addPhoto(event) {
     const file = event.target.files[0];
     if (!file || compressedImages.length >= 3) return;
@@ -411,11 +468,10 @@
     });
 
     if (res.ok) {
-      successMsg.style.display = 'block';
       document.getElementById('diaryText').value = '';
       compressedImages = [];
       updatePhotoThumbs();
-      setTimeout(() => successMsg.style.display = 'none', 3000);
+      showSaveEffect();
     } else {
       errorMsg.style.display = 'block';
     }
@@ -443,7 +499,10 @@
       return '<div class="diary-item">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
           '<div class="diary-item-course">📖 ' + (courseMap[d.course_code] || d.course_code) + '</div>' +
-          '<button onclick="deleteDiary(' + d.id + ')" style="background:#FFF0F0;border:none;border-radius:8px;padding:4px 10px;font-size:12px;color:#CC3333;cursor:pointer;font-family:Kosugi Maru,sans-serif">🗑️ 削除</button>' +
+          '<div style="display:flex;gap:6px">' +
+            '<button onclick="downloadSingleDiary(' + d.id + ')" style="background:#EEF2FF;border:none;border-radius:8px;padding:4px 10px;font-size:12px;color:#667EEA;cursor:pointer;font-family:Kosugi Maru,sans-serif">📥</button>' +
+            '<button onclick="deleteDiary(' + d.id + ')" style="background:#FFF0F0;border:none;border-radius:8px;padding:4px 10px;font-size:12px;color:#CC3333;cursor:pointer;font-family:Kosugi Maru,sans-serif">🗑️</button>' +
+          '</div>' +
         '</div>' +
         '<div class="diary-item-text">' + d.diary_text + '</div>' + photoHtml +
         '<div class="diary-item-date">' + date + '</div></div>';
@@ -519,6 +578,64 @@
     setTimeout(() => {
       alert('ダウンロードしたファイルをブラウザで開いて「印刷」するとPDFで保存できます！');
     }, 500);
+  }
+
+  async function downloadSingleDiary(diaryId) {
+    const res = await fetch(
+      SUPABASE_URL + '/rest/v1/diaries?id=eq.' + diaryId + '&select=*',
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }
+    );
+    const diaries = await res.json();
+    if (!diaries || diaries.length === 0) return;
+
+    const d = diaries[0];
+    const name = document.getElementById('userName').textContent;
+    const date = new Date(d.created_at).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+    const courseName = courseMap[d.course_code] || d.course_code;
+
+    const photos = [d.photo_url, d.photo_url2, d.photo_url3].filter(Boolean);
+    let photoHtml = '';
+    if (photos.length === 1) {
+      photoHtml = `<img src="${photos[0]}" style="width:100%;border-radius:8px;margin-top:12px;object-fit:contain;background:#f0f0f0">`;
+    } else if (photos.length === 2) {
+      photoHtml = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:12px"><img src="${photos[0]}" style="width:100%;border-radius:6px;height:200px;object-fit:contain;background:#f0f0f0"><img src="${photos[1]}" style="width:100%;border-radius:6px;height:200px;object-fit:contain;background:#f0f0f0"></div>`;
+    } else if (photos.length === 3) {
+      photoHtml = `<div style="margin-top:12px"><img src="${photos[0]}" style="width:100%;border-radius:6px;height:250px;object-fit:contain;background:#f0f0f0;margin-bottom:4px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px"><img src="${photos[1]}" style="width:100%;border-radius:6px;height:180px;object-fit:contain;background:#f0f0f0"><img src="${photos[2]}" style="width:100%;border-radius:6px;height:180px;object-fit:contain;background:#f0f0f0"></div></div>`;
+    }
+
+    const html = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>${name}さんの日記 - ${date}</title>
+<style>
+  body { font-family: 'Hiragino Kaku Gothic Pro', 'メイリオ', sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background: #FFF9F0; }
+  h1 { color: #FF6B35; text-align: center; font-size: 24px; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #888; margin-bottom: 32px; font-size: 13px; }
+  .diary { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .course { color: #FF6B35; font-weight: bold; font-size: 15px; margin-bottom: 12px; }
+  .text { font-size: 15px; line-height: 1.8; color: #2D2D2D; white-space: pre-wrap; }
+  .date { font-size: 12px; color: #888; margin-top: 12px; text-align: right; }
+  @media print { body { background: white; } .diary { box-shadow: none; border: 1px solid #EEE; } }
+</style>
+</head>
+<body>
+<h1>🎪 ${name}さんのなつやすみ日記</h1>
+<div class="subtitle">よみうりカルチャー自由が丘 2026年 夏</div>
+<div class="diary">
+  <div class="course">📖 ${courseName}</div>
+  <div class="text">${d.diary_text.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+  ${photoHtml}
+  <div class="date">${date}</div>
+</div>
+</body></html>`;
+
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name + 'の日記_' + date + '.html';
+    a.click();
+    setTimeout(() => alert('ダウンロードしたファイルをブラウザで開いて「印刷」するとPDFで保存できます！'), 500);
   }
 
   async function deleteDiary(diaryId) {
