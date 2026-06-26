@@ -244,8 +244,12 @@
         let badges = '<span class="stamp-badge">' + count + '個</span>';
         if (prize3Map[p.id]) badges += '<span class="prize-badge prize-3">🎁交換済</span>';
         if (prize5Map[p.id]) badges += '<span class="prize-badge prize-5">🏆交換済</span>';
-        return '<tr style="cursor:pointer" onclick="openStampModal(' + p.id + ', \'' + p.nickname + '\')">' +
-          '<td>' + p.nickname + '</td><td>' + p.real_name + '</td><td>' + badges + '</td></tr>';
+        return '<tr>' +
+          '<td style="cursor:pointer" onclick="openStampModal(' + p.id + ', \'' + p.nickname + '\')">' + p.nickname + '</td>' +
+          '<td style="cursor:pointer" onclick="openStampModal(' + p.id + ', \'' + p.nickname + '\')">' + p.real_name + '</td>' +
+          '<td style="cursor:pointer" onclick="openStampModal(' + p.id + ', \'' + p.nickname + '\')">' + badges + '</td>' +
+          '<td><button onclick="event.stopPropagation();deleteParticipant(' + p.id + ', \'' + p.nickname + '\')" style="background:#FFF0F0;color:#CC3333;border:none;border-radius:8px;padding:6px 10px;font-size:12px;font-family:Kosugi Maru,sans-serif;cursor:pointer">🗑️ 削除</button></td>' +
+          '</tr>';
       }).join('');
     }
 
