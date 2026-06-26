@@ -65,6 +65,38 @@
   .panel.active { display: block; }
   .back-link { text-align: center; margin-bottom: 12px; }
   .back-link a { color: var(--muted); font-size: 13px; text-decoration: none; }
+
+  /* スライドボタン */
+  .slide-btn-container { position: relative; background: rgba(255,255,255,0.3); border-radius: 50px; height: 56px; margin-top: 12px; overflow: hidden; cursor: pointer; user-select: none; }
+  .slide-btn-track { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; color: rgba(255,255,255,0.8); font-weight: bold; }
+  .slide-btn-handle { position: absolute; left: 4px; top: 4px; width: 48px; height: 48px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: none; cursor: grab; z-index: 2; }
+  .slide-btn-handle.completed { left: calc(100% - 52px); transition: left 0.3s; }
+  .slide-complete { position: absolute; top: 0; left: 0; bottom: 0; background: rgba(255,255,255,0.3); border-radius: 50px; transition: width 0.1s; }
+
+  /* 交換完了モーダル */
+  .exchange-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+  .exchange-modal.open { display: flex; }
+  .exchange-modal-box { background: white; border-radius: 24px; padding: 32px; text-align: center; width: 100%; max-width: 360px; animation: popIn 0.4s ease; }
+  @keyframes popIn { 0%{transform:scale(0.5);opacity:0} 60%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+
+  /* スライドボタン演出 */
+  @keyframes bounce-slide { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  @keyframes shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }
+  @keyframes pulse-glow { 0%,100%{box-shadow:0 0 0 0 rgba(255,107,53,0.4)} 50%{box-shadow:0 0 0 12px rgba(255,107,53,0)} }
+  @keyframes firework { 0%{transform:scale(0);opacity:1} 100%{transform:scale(2);opacity:0} }
+
+  .slide-btn-container.active { animation: pulse-glow 1.5s infinite; }
+  .slide-btn-handle.bouncing { animation: bounce-slide 0.8s ease infinite; }
+
+  /* 花火エフェクト */
+  .firework-container { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 150; overflow: hidden; }
+  .firework { position: absolute; width: 10px; height: 10px; border-radius: 50%; animation: firework 0.8s ease forwards; }
+
+  /* キラキラ */
+  .prize-banner.shining { background-size: 200% auto !important; animation: shimmer 1.5s linear infinite !important; }
+  .exchange-icon { font-size: 72px; margin-bottom: 16px; }
+  .exchange-title { font-size: 22px; font-weight: bold; color: var(--primary); margin-bottom: 8px; }
+  .exchange-sub { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
 </style>
 </head>
 <body>
@@ -74,6 +106,19 @@
 </div>
 
 <div class="back-link"><a href="index.html">← ログイン画面に戻る</a></div>
+
+<!-- 花火エフェクト -->
+<div class="firework-container" id="fireworkContainer"></div>
+
+<!-- 交換完了モーダル -->
+<div class="exchange-modal" id="exchangeModal">
+  <div class="exchange-modal-box">
+    <div class="exchange-icon" id="exchangeIcon">🎁</div>
+    <div class="exchange-title" id="exchangeTitle">交換完了！</div>
+    <div class="exchange-sub" id="exchangeSub">受付スタッフにこの画面を見せてね</div>
+    <button class="btn btn-primary" onclick="document.getElementById('exchangeModal').className='exchange-modal'">とじる</button>
+  </div>
+</div>
 
 <div id="loadingDiv" class="loading">⏳ よみこみちゅう...</div>
 <div id="errorDiv" class="error-page" style="display:none">
@@ -91,13 +136,30 @@
     <div class="section-title">🎯 スタンプカード</div>
     <div class="stamp-grid" id="stampGrid"></div>
     <div class="stamp-count">あつめたスタンプ：<strong id="stampCount">0</strong> 個</div>
-    <div class="prize-banner prize-3" id="prize3" onclick="alert('🎁 3個達成おめでとう！\nうけつけのひとにこの画面をみせてね！')">
+    <div class="prize-banner prize-3" id="prize3">
       <div class="prize-icon">🎁</div>
       <div class="prize-text"><strong>3個達成！プレゼントをもらおう</strong><span>うけつけスタッフにみせてね</span></div>
     </div>
-    <div class="prize-banner prize-5" id="prize5" onclick="alert('🏆 5個達成おめでとう！\nうけつけのひとにこの画面をみせてね！')">
+    <div id="slideBtn3Container" style="display:none;margin-top:8px">
+      <div style="font-size:13px;color:white;text-align:center;margin-bottom:6px;opacity:0.9">👇 スライドしてプレゼントと交換！</div>
+      <div class="slide-btn-container" id="slideBtn3" onmousedown="startSlide(event,3)" ontouchstart="startSlide(event,3)">
+        <div class="slide-complete" id="slideComplete3"></div>
+        <div class="slide-btn-track">← スライドして交換 →</div>
+        <div class="slide-btn-handle" id="slideHandle3">🎁</div>
+      </div>
+    </div>
+
+    <div class="prize-banner prize-5" id="prize5">
       <div class="prize-icon">🏆</div>
       <div class="prize-text"><strong>5個達成！スペシャルプレゼント！</strong><span>うけつけスタッフにみせてね</span></div>
+    </div>
+    <div id="slideBtn5Container" style="display:none;margin-top:8px">
+      <div style="font-size:13px;color:white;text-align:center;margin-bottom:6px;opacity:0.9">👇 スライドしてプレゼントと交換！</div>
+      <div class="slide-btn-container" id="slideBtn5" onmousedown="startSlide(event,5)" ontouchstart="startSlide(event,5)">
+        <div class="slide-complete" id="slideComplete5"></div>
+        <div class="slide-btn-track">← スライドして交換 →</div>
+        <div class="slide-btn-handle" id="slideHandle5">🏆</div>
+      </div>
     </div>
   </div>
 
@@ -206,12 +268,34 @@
     if (stamps.length >= 3) {
       const el = document.getElementById('prize3');
       el.style.display = 'flex';
-      if (prize3Done) { el.style.background = 'linear-gradient(135deg, #48BB78, #38A169)'; el.querySelector('strong').textContent = '3個達成！交換済み ✓'; el.querySelector('span').textContent = 'プレゼントをもらいました！'; }
+      if (prize3Done) {
+        el.style.background = 'linear-gradient(135deg, #48BB78, #38A169)';
+        el.querySelector('strong').textContent = '3個達成！交換済み ✓';
+        el.querySelector('span').textContent = 'プレゼントをもらいました！';
+      } else {
+        document.getElementById('slideBtn3Container').style.display = 'block';
+        document.getElementById('slideBtn3Container').style.background = 'linear-gradient(135deg, #FFD700, #FFA500)';
+        document.getElementById('slideBtn3Container').style.borderRadius = '12px';
+        document.getElementById('slideBtn3Container').style.padding = '12px';
+        document.getElementById('slideBtn3').classList.add('active');
+        document.getElementById('slideHandle3').classList.add('bouncing');
+      }
     }
     if (stamps.length >= 5) {
       const el = document.getElementById('prize5');
       el.style.display = 'flex';
-      if (prize5Done) { el.style.background = 'linear-gradient(135deg, #4ECDC4, #2C9E96)'; el.querySelector('strong').textContent = '5個達成！交換済み ✓'; el.querySelector('span').textContent = 'スペシャルプレゼントをもらいました！'; }
+      if (prize5Done) {
+        el.style.background = 'linear-gradient(135deg, #4ECDC4, #2C9E96)';
+        el.querySelector('strong').textContent = '5個達成！交換済み ✓';
+        el.querySelector('span').textContent = 'スペシャルプレゼントをもらいました！';
+      } else {
+        document.getElementById('slideBtn5Container').style.display = 'block';
+        document.getElementById('slideBtn5Container').style.background = 'linear-gradient(135deg, #4ECDC4, #44A8A0)';
+        document.getElementById('slideBtn5Container').style.borderRadius = '12px';
+        document.getElementById('slideBtn5Container').style.padding = '12px';
+        document.getElementById('slideBtn5').classList.add('active');
+        document.getElementById('slideHandle5').classList.add('bouncing');
+      }
     }
 
     const courseList = document.getElementById('courseList');
@@ -339,6 +423,105 @@
   }
 
   init();
+
+  // スライドボタン機能
+  function startSlide(e, num) {
+    e.preventDefault();
+    const container = document.getElementById('slideBtn' + num);
+    const handle = document.getElementById('slideHandle' + num);
+    const complete = document.getElementById('slideComplete' + num);
+    const containerWidth = container.offsetWidth;
+    const maxLeft = containerWidth - 56;
+
+    const startX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+    let isDragging = true;
+
+    function onMove(e) {
+      if (!isDragging) return;
+      const currentX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+      const diff = currentX - startX;
+      const left = Math.max(0, Math.min(diff, maxLeft));
+      handle.style.left = (4 + left) + 'px';
+      complete.style.width = (left + 52) + 'px';
+
+      if (left >= maxLeft - 10) {
+        isDragging = false;
+        handle.classList.add('completed');
+        complete.style.width = '100%';
+        setTimeout(() => completeExchange(num), 300);
+      }
+    }
+
+    function onEnd() {
+      if (isDragging) {
+        isDragging = false;
+        handle.style.left = '4px';
+        complete.style.width = '0';
+      }
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onEnd);
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('touchend', onEnd);
+    }
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
+  }
+
+  async function completeExchange(num) {
+    if (!participantId) return;
+    const field = num === 3 ? 'prize_3' : 'prize_5';
+
+    const stampsRes = await fetch(SUPABASE_URL + '/rest/v1/stamps?participant_id=eq.' + participantId + '&select=id&limit=1',
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } });
+    const stamps = await stampsRes.json();
+    if (!stamps || stamps.length === 0) return;
+
+    await fetch(SUPABASE_URL + '/rest/v1/stamps?id=eq.' + stamps[0].id, {
+      method: 'PATCH',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ [field]: true })
+    });
+
+    // モーダル表示
+    if (num === 3) {
+      document.getElementById('exchangeIcon').textContent = '🎁';
+      document.getElementById('exchangeTitle').textContent = '3個交換完了！';
+      document.getElementById('exchangeSub').textContent = '受付スタッフにこの画面を見せてね！';
+      document.getElementById('prize3').style.background = 'linear-gradient(135deg, #48BB78, #38A169)';
+      document.getElementById('prize3').querySelector('strong').textContent = '3個達成！交換済み ✓';
+      document.getElementById('slideBtn3Container').style.display = 'none';
+    } else {
+      document.getElementById('exchangeIcon').textContent = '🏆';
+      document.getElementById('exchangeTitle').textContent = '5個交換完了！';
+      document.getElementById('exchangeSub').textContent = 'スペシャルプレゼントをもらってね！';
+      document.getElementById('prize5').style.background = 'linear-gradient(135deg, #4ECDC4, #2C9E96)';
+      document.getElementById('prize5').querySelector('strong').textContent = '5個達成！交換済み ✓';
+      document.getElementById('slideBtn5Container').style.display = 'none';
+    }
+    document.getElementById('exchangeModal').className = 'exchange-modal open';
+    launchFireworks();
+  }
+
+  function launchFireworks() {
+    const container = document.getElementById('fireworkContainer');
+    const colors = ['#FF6B35','#FFD700','#4ECDC4','#FF69B4','#7B68EE','#48BB78'];
+    for (let i = 0; i < 30; i++) {
+      setTimeout(() => {
+        const fw = document.createElement('div');
+        fw.className = 'firework';
+        fw.style.left = Math.random() * 100 + '%';
+        fw.style.top = Math.random() * 100 + '%';
+        fw.style.background = colors[Math.floor(Math.random() * colors.length)];
+        fw.style.width = (Math.random() * 12 + 6) + 'px';
+        fw.style.height = fw.style.width;
+        container.appendChild(fw);
+        setTimeout(() => fw.remove(), 800);
+      }, Math.random() * 600);
+    }
+  }
 </script>
 </body>
 </html>
