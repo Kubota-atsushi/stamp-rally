@@ -522,26 +522,55 @@
     const prize3Done = stamps.some(s => s.prize_3);
     const prize5Done = stamps.some(s => s.prize_5);
 
+    const BASE = 'https://yomiuri-jiyugaoka.github.io/stamp-rally/';
+    const animalImgs = [
+      BASE + 'animal_mark_hiyoko.png',
+      BASE + 'animal_mark01_buta.png',
+      BASE + 'animal_mark02_kuma.png',
+      BASE + 'animal_mark03_inu.png',
+      BASE + 'animal_mark04_neko.png',
+      BASE + 'animal_mark05_zou.png',
+      BASE + 'animal_mark06_uma.png',
+      BASE + 'animal_mark07_lion.png',
+      BASE + 'animal_mark08_kaba.png',
+      BASE + 'animal_mark09_tora.png',
+    ];
+
+    const prize8Done = stamps.some(s => s.prize_8);
+    const prize10Done = stamps.some(s => s.prize_10);
+
     const grid = document.getElementById('stampGrid');
     grid.innerHTML = '';
     for (let i = 1; i <= 10; i++) {
       const stamp = document.createElement('div');
       let cls = 'stamp ';
       let inner = '';
+      const img = animalImgs[i - 1];
+
       if (i <= stamps.length) {
-        if (prize5Done && i <= 5) {
-          cls += 'exchanged5';
-          inner = '<span>🏆</span><span class="stamp-exchanged-label">交換済</span>';
-        } else if (prize3Done && i <= 3) {
-          cls += 'exchanged3';
-          inner = '<span>✅</span><span class="stamp-exchanged-label">交換済</span>';
+        // 交換済みチェック
+        let exchanged = false;
+        let exchangeColor = '';
+        if (prize10Done && i <= 10) { exchanged = true; exchangeColor = 'linear-gradient(135deg,#6C3A8E,#5A2A7C)'; }
+        else if (prize8Done && i <= 8) { exchanged = true; exchangeColor = 'linear-gradient(135deg,#C06090,#A0407A)'; }
+        else if (prize5Done && i <= 5) { exchanged = true; exchangeColor = 'linear-gradient(135deg,#4ECDC4,#2C9E96)'; }
+        else if (prize3Done && i <= 3) { exchanged = true; exchangeColor = 'linear-gradient(135deg,#48BB78,#38A169)'; }
+
+        if (exchanged) {
+          cls += 'on';
+          inner = '<div style="position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center">' +
+            '<img src="' + img + '" style="width:80%;height:80%;object-fit:contain;filter:brightness(0.7)">' +
+            '<div style="position:absolute;bottom:2px;right:2px;background:white;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:10px">✓</div>' +
+            '</div>';
+          stamp.style.background = exchangeColor;
+          stamp.style.boxShadow = '0 4px 0 rgba(0,0,0,0.2)';
         } else {
           cls += 'on';
-          inner = '<span>🌟</span><span class="stamp-number">' + i + '</span>';
+          inner = '<img src="' + img + '" style="width:85%;height:85%;object-fit:contain">';
         }
       } else {
         cls += 'off';
-        inner = '<span style="font-size:16px;color:#CCC">' + i + '</span>';
+        inner = '<img src="' + img + '" style="width:75%;height:75%;object-fit:contain;filter:grayscale(1) opacity(0.25)">' ;
       }
       stamp.className = cls;
       stamp.innerHTML = inner;
