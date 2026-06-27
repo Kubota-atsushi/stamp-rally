@@ -86,12 +86,14 @@
 
 <div class="container">
   <div class="card" id="mainCard">
+    <img src="https://yomiuri-jiyugaoka.github.io/stamp-rally/yumekawa_animal_panda.png" class="stamp-icon" id="stampIcon" style="width:100px;height:100px;object-fit:contain;font-size:0">
     <div style="display:flex;justify-content:center;gap:8px;margin-bottom:8px">
-      <img src="https://yomiuri-jiyugaoka.github.io/stamp-rally/yumekawa_animal_inu.png" style="width:44px;height:44px;object-fit:contain;animation:meltPop 2s ease infinite">
-      <img src="https://yomiuri-jiyugaoka.github.io/stamp-rally/animal_melt1_cat.png" style="width:38px;height:38px;object-fit:contain;animation:meltPop 2s ease infinite;animation-delay:0.4s">
-      <img src="https://yomiuri-jiyugaoka.github.io/stamp-rally/yumekawa_animal_panda.png" style="width:44px;height:44px;object-fit:contain;animation:meltPop 2s ease infinite;animation-delay:0.8s">
+      <img src="https://yomiuri-jiyugaoka.github.io/stamp-rally/animal_melt1_cat.png" style="width:44px;height:44px;object-fit:contain;animation:meltPop 2s ease infinite">
+      <img src="https://yomiuri-jiyugaoka.github.io/stamp-rally/animal_melt2_dog.png" style="width:44px;height:44px;object-fit:contain;animation:meltPop 2s ease infinite;animation-delay:0.3s">
+      <img src="https://yomiuri-jiyugaoka.github.io/stamp-rally/animal_melt3_rabbit.png" style="width:44px;height:44px;object-fit:contain;animation:meltPop 2s ease infinite;animation-delay:0.6s">
+      <img src="https://yomiuri-jiyugaoka.github.io/stamp-rally/animal_melt5_penguin.png" style="width:44px;height:44px;object-fit:contain;animation:meltPop 2s ease infinite;animation-delay:0.9s">
+      <img src="https://yomiuri-jiyugaoka.github.io/stamp-rally/animal_melt6_bear.png" style="width:44px;height:44px;object-fit:contain;animation:meltPop 2s ease infinite;animation-delay:1.2s">
     </div>
-    <div class="stamp-icon" id="stampIcon">🎯</div>
     <div class="course-name" id="courseName">講座名を読み込み中...</div>
     <div class="course-sub">この講座に参加したね！</div>
 
@@ -232,7 +234,6 @@
     const courses = await res.json();
     if (courses && courses.length > 0) {
       document.getElementById('courseName').textContent = courses[0].course_name;
-      document.getElementById('stampIcon').textContent = '🎪';
     }
     const savedNickname = localStorage.getItem('stamp_nickname');
     if (savedNickname) {
