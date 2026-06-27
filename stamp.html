@@ -112,6 +112,15 @@
       <button class="btn btn-accent" onclick="stampWithInput()">🌟 スタンプを押す！</button>
     </div>
 
+    <!-- 未登録画面 -->
+    <div id="notRegisteredScreen" style="display:none;text-align:center">
+      <img src="https://yomiuri-jiyugaoka.github.io/stamp-rally/animal_melt3_rabbit.png" style="width:80px;margin-bottom:12px">
+      <div style="font-size:18px;font-weight:bold;color:#C090C8;margin-bottom:8px">まだ登録していないよ！</div>
+      <div style="font-size:14px;color:var(--muted);margin-bottom:20px">さきに登録してからスタンプを押してね🌟</div>
+      <button class="btn btn-primary" onclick="goRegister()">✨ 登録ページへ</button>
+      <button class="btn btn-gray" onclick="showInputSection()">← ニックネームを入力し直す</button>
+    </div>
+
     <!-- 済み画面 -->
     <div class="already-screen" id="alreadyScreen">
       <div class="already-icon">🎯</div>
@@ -284,9 +293,10 @@
 
     if (!participants || participants.length === 0) {
       loading.style.display = 'none';
-      errorDiv.style.display = 'block';
-      errorDiv.textContent = 'そのニックネームは登録されていません。';
-      showInputSection();
+      // 未登録の場合は登録ページに誘導
+      document.getElementById('confirmSection').style.display = 'none';
+      document.getElementById('inputSection').style.display = 'none';
+      document.getElementById('notRegisteredScreen').style.display = 'block';
       return;
     }
 
@@ -354,6 +364,12 @@
   }
 
   function goMypage() { location.href = `mypage.html?id=${currentParticipantId}`; }
+
+  function goRegister() {
+    // 現在の講座コードを保持してトップページへ
+    sessionStorage.setItem('pending_course', courseCode);
+    location.href = 'index.html?register=1';
+  }
 
   function resetScreen() {
     document.getElementById('alreadyScreen').style.display = 'none';

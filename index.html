@@ -223,6 +223,14 @@
     bgStars.appendChild(star);
   }
 
+  // スタンプページから来た場合は登録タブを開く
+  const urlParams = new URLSearchParams(location.search);
+  if (urlParams.get('register') === '1' && !localStorage.getItem('stamp_nickname')) {
+    document.getElementById('savedSection').style.display = 'none';
+    document.getElementById('tabSection').style.display = 'block';
+    switchTab('register');
+  }
+
   const savedNickname = localStorage.getItem('stamp_nickname');
   if (savedNickname) {
     document.getElementById('savedNicknameDisplay').textContent = savedNickname + ' さん';
@@ -312,7 +320,14 @@
     if (res.ok) {
       const data = await res.json();
       localStorage.setItem('stamp_nickname', nickname);
-      location.href = `mypage.html?id=${data[0].id}`;
+      // スタンプページからきた場合は戻る
+      const pendingCourse = sessionStorage.getItem('pending_course');
+      if (pendingCourse) {
+        sessionStorage.removeItem('pending_course');
+        location.href = `stamp.html?course=${pendingCourse}`;
+      } else {
+        location.href = `mypage.html?id=${data[0].id}`;
+      }
     } else {
       errorDiv.style.display = 'block';
       errorDiv.textContent = 'そのニックネームはすでに使われています。下の候補から選んでね！';
