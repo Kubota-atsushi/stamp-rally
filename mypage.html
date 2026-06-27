@@ -107,6 +107,10 @@
   }
   .prize-3 { background: linear-gradient(135deg, #FFE899, #FFCC66); display: none; }
   .prize-5 { background: linear-gradient(135deg, #A8E8E4, #7DCFCA); display: none; }
+  .prize-locked { background: linear-gradient(135deg, #F0EEF8, #EAE8F5) !important; opacity: 0.6; filter: grayscale(0.4); pointer-events: none; }
+  .prize-locked .prize-icon { animation: none !important; }
+  .prize-locked .prize-text strong { color: #9A8AB0 !important; text-shadow: none !important; }
+  .prize-locked .prize-text span { color: #B0A8C8 !important; }
   .prize-icon { font-size: 32px; animation: prizeWiggle 1s ease infinite; }
   @keyframes prizeWiggle { 0%,100%{transform:rotate(0)} 25%{transform:rotate(-10deg)} 75%{transform:rotate(10deg)} }
   .prize-text { color: white; }
@@ -424,6 +428,14 @@
       <div class="stamp-count-label">あつめたスタンプ</div>
     </div>
 
+    <!-- ゴールバー -->
+    <div class="goal-bar-section" id="goalBarSection" style="margin-top:14px;margin-bottom:4px">
+      <div class="goal-bar-bg">
+        <div class="goal-bar-fill" id="goalBarFill" style="width:0%"></div>
+      </div>
+      <div class="goal-bar-markers" id="goalBarMarkers"></div>
+    </div>
+
     <div class="prize-banner prize-3" id="prize3">
       <div class="prize-icon">🎁</div>
       <div class="prize-text"><strong>3個達成！プレゼントをもらおう</strong><span>うけつけスタッフにみせてね</span></div>
@@ -450,14 +462,6 @@
         <div class="slide-btn-track">← スライドして交換 →</div>
         <div class="slide-btn-handle" id="slideHandle5">🏆</div>
       </div>
-    </div>
-
-    <!-- ゴールバー -->
-    <div class="goal-bar-section" id="goalBarSection">
-      <div class="goal-bar-bg">
-        <div class="goal-bar-fill" id="goalBarFill" style="width:0%"></div>
-      </div>
-      <div class="goal-bar-markers" id="goalBarMarkers"></div>
     </div>
 
     <!-- 8個達成 -->
@@ -664,13 +668,15 @@
     }
     document.getElementById('stampCount').textContent = stamps.length;
 
+    // prize3は常に表示（未達成はうっすら）
+    const el3 = document.getElementById('prize3');
+    el3.style.display = 'flex';
     if (stamps.length >= 3) {
-      const el = document.getElementById('prize3');
-      el.style.display = 'flex';
+      el3.classList.remove('prize-locked');
       if (prize3Done) {
-        el.style.background = 'linear-gradient(135deg, #48BB78, #38A169)';
-        el.querySelector('strong').textContent = '3個達成！交換済み ✓';
-        el.querySelector('span').textContent = 'プレゼントをもらいました！';
+        el3.style.background = 'linear-gradient(135deg, #48BB78, #38A169)';
+        el3.querySelector('strong').textContent = '3個達成！交換済み ✓';
+        el3.querySelector('span').textContent = 'プレゼントをもらいました！';
       } else {
         document.getElementById('slideBtn3Container').style.display = 'block';
         document.getElementById('slideBtn3Container').style.background = 'linear-gradient(135deg, #FFD700, #FFA500)';
@@ -679,14 +685,18 @@
         document.getElementById('slideBtn3').classList.add('active');
         document.getElementById('slideHandle3').classList.add('bouncing');
       }
+    } else {
+      el3.classList.add('prize-locked');
     }
+    // prize5は常に表示
+    const el5 = document.getElementById('prize5');
+    el5.style.display = 'flex';
     if (stamps.length >= 5) {
-      const el = document.getElementById('prize5');
-      el.style.display = 'flex';
+      el5.classList.remove('prize-locked');
       if (prize5Done) {
-        el.style.background = 'linear-gradient(135deg, #A8E4E0, #80D0C8)';
-        el.querySelector('strong').textContent = '5個達成！交換済み ✓';
-        el.querySelector('span').textContent = 'スペシャルプレゼントをもらいました！';
+        el5.style.background = 'linear-gradient(135deg, #A8E4E0, #80D0C8)';
+        el5.querySelector('strong').textContent = '5個達成！交換済み ✓';
+        el5.querySelector('span').textContent = 'スペシャルプレゼントをもらいました！';
       } else {
         const sb5 = document.getElementById('slideBtn5Container');
         sb5.style.display = 'block';
@@ -696,15 +706,19 @@
         document.getElementById('slideBtn5').classList.add('active');
         document.getElementById('slideHandle5').classList.add('bouncing');
       }
+    } else {
+      el5.classList.add('prize-locked');
     }
 
+    // prize8は常に表示
+    const el8 = document.getElementById('prize8');
+    el8.style.display = 'flex';
     if (stamps.length >= 8) {
-      const el = document.getElementById('prize8');
-      el.style.display = 'flex';
+      el8.classList.remove('prize-locked');
       if (prize8Done_init) {
-        el.style.background = 'linear-gradient(135deg, #C06090, #A0407A)';
-        el.querySelector('strong').textContent = '8個達成！交換済み ✓';
-        el.querySelector('span').textContent = 'プレゼントをもらいました！';
+        el8.style.background = 'linear-gradient(135deg, #C06090, #A0407A)';
+        el8.querySelector('strong').textContent = '8個達成！交換済み ✓';
+        el8.querySelector('span').textContent = 'プレゼントをもらいました！';
       } else {
         const sb8 = document.getElementById('slideBtn8Container');
         sb8.style.display = 'block';
@@ -714,15 +728,19 @@
         document.getElementById('slideBtn8').classList.add('active');
         document.getElementById('slideHandle8').classList.add('bouncing');
       }
+    } else {
+      el8.classList.add('prize-locked');
     }
 
+    // prize10は常に表示
+    const el10 = document.getElementById('prize10');
+    el10.style.display = 'flex';
     if (stamps.length >= 10) {
-      const el = document.getElementById('prize10');
-      el.style.display = 'flex';
+      el10.classList.remove('prize-locked');
       if (prize10Done_init) {
-        el.style.background = 'linear-gradient(135deg, #6C3A8E, #5A2A7C)';
-        el.querySelector('strong').textContent = '10個達成！交換済み ✓';
-        el.querySelector('span').textContent = 'チャンピオン景品をもらいました！';
+        el10.style.background = 'linear-gradient(135deg, #6C3A8E, #5A2A7C)';
+        el10.querySelector('strong').textContent = '10個達成！交換済み ✓';
+        el10.querySelector('span').textContent = 'チャンピオン景品をもらいました！';
       } else {
         const sb10 = document.getElementById('slideBtn10Container');
         sb10.style.display = 'block';
@@ -732,6 +750,8 @@
         document.getElementById('slideBtn10').classList.add('active');
         document.getElementById('slideHandle10').classList.add('bouncing');
       }
+    } else {
+      el10.classList.add('prize-locked');
     }
 
     // ゴールバー更新
