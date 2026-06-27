@@ -189,7 +189,17 @@
         <div class="form-row">
           <div>
             <label>生年月日</label>
-            <input type="date" id="registerBirthdate" style="padding:12px;border:2px solid #EEE;border-radius:12px;font-family:Kosugi Maru,sans-serif;outline:none;width:100%;margin-bottom:14px">
+            <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:6px;margin-bottom:14px">
+            <select id="registerBirthYear" style="padding:12px 8px;border:2px solid #EEE;border-radius:12px;font-family:Kosugi Maru,sans-serif;outline:none;font-size:14px;color:#4A4A4A;background:white">
+              <option value="">年</option>
+            </select>
+            <select id="registerBirthMonth" style="padding:12px 8px;border:2px solid #EEE;border-radius:12px;font-family:Kosugi Maru,sans-serif;outline:none;font-size:14px;color:#4A4A4A;background:white">
+              <option value="">月</option>
+            </select>
+            <select id="registerBirthDay" style="padding:12px 8px;border:2px solid #EEE;border-radius:12px;font-family:Kosugi Maru,sans-serif;outline:none;font-size:14px;color:#4A4A4A;background:white">
+              <option value="">日</option>
+            </select>
+          </div>
           </div>
           <div>
             <label>性別</label>
@@ -209,6 +219,28 @@
 </div>
 
 <script>
+  // 生年月日プルダウンを初期化
+  (function() {
+    const yearSel = document.getElementById('registerBirthYear');
+    const monthSel = document.getElementById('registerBirthMonth');
+    const daySel = document.getElementById('registerBirthDay');
+    for (let y = 2025; y >= 1996; y--) {
+      const opt = document.createElement('option');
+      opt.value = y; opt.textContent = y + '年';
+      yearSel.appendChild(opt);
+    }
+    for (let m = 1; m <= 12; m++) {
+      const opt = document.createElement('option');
+      opt.value = String(m).padStart(2,'0'); opt.textContent = m + '月';
+      monthSel.appendChild(opt);
+    }
+    for (let d = 1; d <= 31; d++) {
+      const opt = document.createElement('option');
+      opt.value = String(d).padStart(2,'0'); opt.textContent = d + '日';
+      daySel.appendChild(opt);
+    }
+  })();
+
   const SUPABASE_URL = 'https://xxtqlxfknmbbfjdidjjl.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh4dHFseGZrbm1iYmZqZGlkampsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzM5MjIsImV4cCI6MjA5NjMwOTkyMn0.gtvl8xfz6a6axkn7OYsmZVGubIiVY5QRCWBiNY2oUwU';
   let selectedGender = '';
@@ -303,7 +335,10 @@
   async function register() {
     const nickname = document.getElementById('registerNickname').value.trim();
     const realName = document.getElementById('registerRealName').value.trim();
-    const birthdate = document.getElementById('registerBirthdate').value;
+    const birthYear = document.getElementById('registerBirthYear').value;
+    const birthMonth = document.getElementById('registerBirthMonth').value;
+    const birthDay = document.getElementById('registerBirthDay').value;
+    const birthdate = birthYear && birthMonth && birthDay ? `${birthYear}-${birthMonth}-${birthDay}` : '';
     const errorDiv = document.getElementById('registerError');
     const loading = document.getElementById('registerLoading');
     if (!nickname) { errorDiv.style.display = 'block'; errorDiv.textContent = 'ニックネームを入力してね！'; return; }
@@ -314,7 +349,7 @@
     const realNameVal = realNameInput.value.trim();
     if (!realNameVal) { errorDiv.style.display = 'block'; errorDiv.textContent = '本名をカタカナで入力してね！'; return; }
     if (!/^[ァ-ヶーｦ-ﾟ\s　]+$/.test(realNameVal)) { errorDiv.style.display = 'block'; errorDiv.textContent = '本名はカタカナで入力してね！漢字やアルファベットは使えません（例：ヤマダタロウ）'; return; }
-    if (!birthdate) { errorDiv.style.display = 'block'; errorDiv.textContent = '生年月日を入力してね！'; return; }
+    if (!birthdate) { errorDiv.style.display = 'block'; errorDiv.textContent = '生年月日を選んでね！'; return; }
     if (!selectedGender) { errorDiv.style.display = 'block'; errorDiv.textContent = '性別を選んでね！'; return; }
     errorDiv.style.display = 'none'; loading.style.display = 'block';
     const res = await fetch(`${SUPABASE_URL}/rest/v1/participants`, {
