@@ -361,7 +361,46 @@
   <p style="color:var(--muted);font-size:15px">ページがみつかりませんでした。<br>うけつけのひとにきいてね。</p>
 </div>
 
-<!-- 達成演出オーバーレイ -->
+<!-- ホーム画面追加モーダル -->
+<div id="addHomeModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:300;align-items:center;justify-content:center;padding:20px">
+  <div style="background:white;border-radius:24px;padding:24px;width:100%;max-width:360px">
+    <div style="font-size:16px;font-weight:bold;text-align:center;color:#5A3A4A;margin-bottom:4px">🏠 ホーム画面に追加しよう</div>
+    <div style="font-size:12px;color:#AAA;text-align:center;margin-bottom:16px">かんたんに開けるようになるよ！</div>
+    <div style="display:flex;gap:6px;margin-bottom:12px">
+      <button id="tabIOS" onclick="switchHomeTab('ios')" style="flex:1;padding:8px;border:none;border-radius:10px;font-family:Kosugi Maru,sans-serif;font-size:13px;background:linear-gradient(135deg,#FFB3D1,#C9A8E8);color:white;cursor:pointer">iPhone</button>
+      <button id="tabAndroid" onclick="switchHomeTab('android')" style="flex:1;padding:8px;border:none;border-radius:10px;font-family:Kosugi Maru,sans-serif;font-size:13px;background:#F5F0FF;color:#9A8AB0;cursor:pointer">Android</button>
+    </div>
+    <div id="stepsIOS">
+      <div style="display:flex;align-items:flex-start;gap:10px;background:#FFF5FB;border-radius:12px;padding:10px 12px;margin-bottom:8px">
+        <div style="width:24px;height:24px;background:linear-gradient(135deg,#FFB3A0,#FF9B85);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;color:white;flex-shrink:0">1</div>
+        <div style="font-size:13px;color:#5A3A4A;line-height:1.5">画面下の <span style="color:#FF8C69;font-weight:bold">共有ボタン</span>（四角に↑）をタップ</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;background:#FFF5FB;border-radius:12px;padding:10px 12px;margin-bottom:8px">
+        <div style="width:24px;height:24px;background:linear-gradient(135deg,#FFB3A0,#FF9B85);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;color:white;flex-shrink:0">2</div>
+        <div style="font-size:13px;color:#5A3A4A;line-height:1.5"><span style="color:#FF8C69;font-weight:bold">「ホーム画面に追加」</span>をタップ</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;background:#FFF5FB;border-radius:12px;padding:10px 12px;margin-bottom:16px">
+        <div style="width:24px;height:24px;background:linear-gradient(135deg,#FFB3A0,#FF9B85);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;color:white;flex-shrink:0">3</div>
+        <div style="font-size:13px;color:#5A3A4A;line-height:1.5">右上の <span style="color:#FF8C69;font-weight:bold">「追加」</span>をタップして完了！</div>
+      </div>
+    </div>
+    <div id="stepsAndroid" style="display:none">
+      <div style="display:flex;align-items:flex-start;gap:10px;background:#FFF5FB;border-radius:12px;padding:10px 12px;margin-bottom:8px">
+        <div style="width:24px;height:24px;background:linear-gradient(135deg,#A8E4E0,#7DCFCA);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;color:white;flex-shrink:0">1</div>
+        <div style="font-size:13px;color:#5A3A4A;line-height:1.5">右上の <span style="color:#FF8C69;font-weight:bold">メニュー（⋮）</span>をタップ</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;background:#FFF5FB;border-radius:12px;padding:10px 12px;margin-bottom:8px">
+        <div style="width:24px;height:24px;background:linear-gradient(135deg,#A8E4E0,#7DCFCA);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;color:white;flex-shrink:0">2</div>
+        <div style="font-size:13px;color:#5A3A4A;line-height:1.5"><span style="color:#FF8C69;font-weight:bold">「ホーム画面に追加」</span>をタップ</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;background:#FFF5FB;border-radius:12px;padding:10px 12px;margin-bottom:16px">
+        <div style="width:24px;height:24px;background:linear-gradient(135deg,#A8E4E0,#7DCFCA);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;color:white;flex-shrink:0">3</div>
+        <div style="font-size:13px;color:#5A3A4A;line-height:1.5"><span style="color:#FF8C69;font-weight:bold">「追加」</span>をタップして完了！</div>
+      </div>
+    </div>
+    <button onclick="document.getElementById('addHomeModal').style.display='none'" style="width:100%;padding:12px;background:#F5F0FF;border:none;border-radius:12px;font-family:Kosugi Maru,sans-serif;font-size:14px;color:#9A8AB0;cursor:pointer">とじる</button>
+  </div>
+</div>
 <div class="flash-overlay" id="flashOverlay"></div>
 <div class="achievement-animal" id="achievementAnimal" style="display:none">
   <img id="achievementAnimalImg" style="width:160px;height:160px;object-fit:contain">
@@ -417,6 +456,7 @@
     <div class="welcome-name">🌟 <span id="userName"></span> さん</div>
     <div class="welcome-sub">今年の夏もがんばろう！</div>
     <div class="welcome-stars">⭐🌟⭐🌟⭐</div>
+    <button onclick="document.getElementById('addHomeModal').style.display='flex'" style="margin-top:12px;background:rgba(255,255,255,0.4);border:2px solid rgba(255,255,255,0.6);border-radius:20px;padding:8px 18px;font-family:Kosugi Maru,sans-serif;font-size:13px;color:#5A3A4A;cursor:pointer;font-weight:bold">🏠 ホーム画面に追加する</button>
   </div>
 
   <!-- スタンプカード -->
@@ -776,6 +816,15 @@
         '<div class="goal-marker-label ' + labelClass + '">' + labelText + '</div>';
       markersDiv.appendChild(marker);
     });
+  }
+
+  function switchHomeTab(tab) {
+    document.getElementById('stepsIOS').style.display = tab === 'ios' ? 'block' : 'none';
+    document.getElementById('stepsAndroid').style.display = tab === 'android' ? 'block' : 'none';
+    document.getElementById('tabIOS').style.background = tab === 'ios' ? 'linear-gradient(135deg,#FFB3D1,#C9A8E8)' : '#F5F0FF';
+    document.getElementById('tabIOS').style.color = tab === 'ios' ? 'white' : '#9A8AB0';
+    document.getElementById('tabAndroid').style.background = tab === 'android' ? 'linear-gradient(135deg,#A8E4E0,#7DCFCA)' : '#F5F0FF';
+    document.getElementById('tabAndroid').style.color = tab === 'android' ? 'white' : '#9A8AB0';
   }
 
   function switchDiaryTab(tab) {
