@@ -7,94 +7,95 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap');
-  :root { --primary: #FF6B35; --accent: #4ECDC4; --bg: #1A1A2E; --card: #16213E; --text: #FFFFFF; --muted: #AAA; --green: #48BB78; }
+  :root { --primary: #FF8C69; --accent: #7DD5CC; --bg: #FFF5FB; --card: #FFFFFF; --text: #4A4A4A; --muted: #AAA; --green: #8FD5A6; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Kosugi Maru', sans-serif; background: var(--bg); min-height: 100vh; padding: 16px; color: var(--text); }
-  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .header-title { font-size: 16px; font-weight: bold; color: var(--accent); }
-  .card { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.06); }
-  .section-title { font-size: 15px; font-weight: bold; color: var(--accent); margin-bottom: 14px; }
-  .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-family: 'Kosugi Maru', sans-serif; font-weight: bold; cursor: pointer; transition: transform 0.1s; margin-bottom: 8px; }
+  body { font-family: 'Kosugi Maru', sans-serif; background: var(--bg); min-height: 100vh; padding: 16px; background-image: radial-gradient(circle at 10% 10%, #FFE4F0 0%, transparent 30%), radial-gradient(circle at 90% 90%, #E4F8FF 0%, transparent 30%); }
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; background: white; border-radius: 20px; padding: 12px 16px; box-shadow: 0 4px 16px rgba(200,150,220,0.1); }
+  .header-title { font-size: 14px; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+  .card { background: var(--card); border-radius: 24px; padding: 18px; margin-bottom: 14px; box-shadow: 0 4px 16px rgba(200,150,220,0.08); border: 1.5px solid rgba(200,160,220,0.1); }
+  .section-title { font-size: 14px; font-weight: bold; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .btn { width: 100%; padding: 13px; border: none; border-radius: 14px; font-size: 15px; font-family: 'Kosugi Maru', sans-serif; font-weight: bold; cursor: pointer; transition: transform 0.1s; margin-bottom: 8px; }
   .btn:active { transform: scale(0.97); }
-  .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 0 #CC4A1A; }
-  .btn-accent { background: var(--accent); color: white; box-shadow: 0 4px 0 #2EA89F; }
-  .btn-green { background: #48BB78; color: white; box-shadow: 0 4px 0 #276749; }
-  .btn-gray { background: rgba(255,255,255,0.1); color: white; }
-  input[type="text"] { width: 100%; padding: 14px; border: 2px solid rgba(255,255,255,0.2); border-radius: 10px; font-size: 18px; font-family: 'Kosugi Maru', sans-serif; color: white; background: rgba(255,255,255,0.1); outline: none; margin-bottom: 12px; }
-  input[type="text"]:focus { border-color: var(--accent); }
-  input[type="text"]::placeholder { color: rgba(255,255,255,0.4); }
-  select { width: 100%; padding: 12px; border: 2px solid rgba(255,255,255,0.2); border-radius: 10px; font-size: 15px; font-family: 'Kosugi Maru', sans-serif; color: #2D2D2D; background: #FFFFFF; outline: none; margin-bottom: 12px; }
-  .search-results { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
-  .result-item { background: rgba(255,255,255,0.07); border-radius: 12px; padding: 14px 16px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(255,255,255,0.08); }
-  .result-item:hover { background: rgba(78,205,196,0.2); border-color: rgba(78,205,196,0.3); transform: translateY(-1px); }
-  .result-name { font-size: 16px; font-weight: bold; }
+  .btn-primary { background: linear-gradient(135deg, #FFB3A0, #FF9B85); color: white; box-shadow: 0 4px 0 #E88A75; }
+  .btn-accent { background: linear-gradient(135deg, #A8E4E0, #7DCFCA); color: #4A8A87; box-shadow: 0 4px 0 #6BBFBA; }
+  .btn-green { background: linear-gradient(135deg, #A8E8C0, #80D8A0); color: #3A7A50; box-shadow: 0 4px 0 #70C890; }
+  .btn-gray { background: #F5F0FF; color: #9A8AB0; border: 1px solid #E8D8F8; }
+  input[type="text"] { width: 100%; padding: 13px 16px; border: 2px solid #E8D8F8; border-radius: 14px; font-size: 16px; font-family: 'Kosugi Maru', sans-serif; color: var(--text); background: white; outline: none; margin-bottom: 10px; }
+  input[type="text"]:focus { border-color: var(--primary); }
+  input[type="text"]::placeholder { color: #CCC; }
+  select { width: 100%; padding: 12px 14px; border: 2px solid #E8D8F8; border-radius: 14px; font-size: 14px; font-family: 'Kosugi Maru', sans-serif; color: var(--text); background: white; outline: none; margin-bottom: 10px; }
+  .search-results { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .result-item { background: #FAF5FF; border-radius: 14px; padding: 13px 16px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; border: 1.5px solid #E8D8F8; }
+  .result-item:hover { background: #F0E8FF; border-color: var(--primary); transform: translateY(-1px); }
+  .result-name { font-size: 16px; font-weight: bold; color: var(--text); }
   .result-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .result-stamps { font-size: 20px; color: var(--primary); font-weight: bold; }
-  .selected-card { background: rgba(78,205,196,0.1); border: 2px solid var(--accent); border-radius: 18px; padding: 18px; margin-bottom: 12px; display: none; box-shadow: 0 4px 16px rgba(78,205,196,0.15); }
-  .selected-name { font-size: 22px; font-weight: bold; margin-bottom: 4px; }
-  .selected-stamps { font-size: 16px; color: var(--accent); margin-bottom: 12px; }
-  .qr-container { background: white; border-radius: 16px; padding: 16px; text-align: center; margin-bottom: 12px; display: none; }
-  .qr-container p { color: #333; font-size: 13px; margin-top: 8px; }
-  .course-history { margin-top: 12px; }
-  .course-history-title { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
-  .course-tag { display: inline-block; background: rgba(78,205,196,0.2); border: 1px solid rgba(78,205,196,0.4); border-radius: 20px; padding: 4px 12px; font-size: 12px; margin: 2px; color: var(--accent); }
-  .success-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(72,187,120,0.97); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
-  .success-icon { font-size: 80px; margin-bottom: 16px; animation: pop 0.5s ease; }
+  .result-stamps { font-size: 18px; font-weight: bold; color: var(--primary); background: #FFF0F8; border-radius: 20px; padding: 4px 12px; }
+  .selected-card { background: linear-gradient(135deg, #FFF0F8, #F0F8FF); border: 2px solid rgba(200,160,220,0.3); border-radius: 20px; padding: 16px; margin-bottom: 12px; display: none; }
+  .selected-name { font-size: 20px; font-weight: bold; color: var(--text); margin-bottom: 4px; }
+  .selected-stamps { font-size: 14px; color: var(--primary); margin-bottom: 12px; background: white; display: inline-block; padding: 4px 12px; border-radius: 20px; }
+  .qr-container { background: white; border-radius: 16px; padding: 16px; text-align: center; margin-bottom: 12px; display: none; border: 2px solid #E8D8F8; }
+  .qr-container p { color: var(--muted); font-size: 12px; margin-top: 8px; }
+  .course-history { margin-top: 10px; margin-bottom: 10px; }
+  .course-history-title { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .course-tag { display: inline-block; background: #E8F8F0; border: 1px solid #A8E8C0; border-radius: 20px; padding: 4px 10px; font-size: 11px; margin: 2px; color: #3A7A50; }
+  .success-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(168,232,192,0.97), rgba(168,228,224,0.97)); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
+  .success-icon { font-size: 72px; margin-bottom: 12px; animation: pop 0.5s ease; }
   @keyframes pop { 0%{transform:scale(0)} 60%{transform:scale(1.3)} 100%{transform:scale(1)} }
-  .success-text { font-size: 26px; font-weight: bold; color: white; text-align: center; }
-  .success-sub { font-size: 18px; color: rgba(255,255,255,0.9); margin-top: 8px; text-align: center; }
-  .error-msg { background: rgba(255,100,100,0.2); border: 1px solid rgba(255,100,100,0.5); color: #FF9999; padding: 10px 14px; border-radius: 10px; font-size: 13px; margin-top: 8px; display: none; }
   @keyframes fall { 0%{transform:translateY(-10px) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
+  @keyframes meltPop { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-10px) scale(1.1)} }
+  .success-text { font-size: 22px; font-weight: bold; color: white; text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  .success-sub { font-size: 16px; color: rgba(255,255,255,0.95); margin-top: 8px; text-align: center; }
+  .error-msg { background: #FFF0F8; border: 1px solid #FFB8D0; color: #CC3366; padding: 10px 14px; border-radius: 12px; font-size: 13px; margin-top: 8px; display: none; }
+  .admin-btn { background: #F5F0FF; border: none; border-radius: 10px; padding: 6px 12px; color: #9A8AB0; font-family: 'Kosugi Maru', sans-serif; cursor: pointer; font-size: 12px; }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="header-title">🎪 よみうりカルチャー自由が丘 受付</div>
-  <button style="background:rgba(255,255,255,0.1);border:none;border-radius:8px;padding:6px 12px;color:white;font-family:Kosugi Maru,sans-serif;cursor:pointer;font-size:13px" onclick="location.href='admin.html'">⚙️ 管理</button>
+  <div class="header-title">
+    <img src="https://yomiuri-jiyugaoka.github.io/stamp-rally/yumekawa_animal_inu.png" style="width:28px;height:28px;object-fit:contain">
+    よみうりカルチャー自由が丘 受付
+  </div>
+  <button class="admin-btn" onclick="location.href='admin.html'">⚙️ 管理</button>
 </div>
 
 <div class="card">
   <div class="section-title">🔍 参加者を探す</div>
-  <input type="text" id="searchInput" placeholder="名前（ひらがな・カタカナ・漢字）で検索" oninput="searchParticipants()">
+  <input type="text" id="searchInput" placeholder="名前で検索（ひらがな・カタカナ・漢字）" oninput="searchParticipants()">
   <div class="search-results" id="searchResults"></div>
-  <div class="error-msg" id="errorMsg">見つかりませんでした</div>
+  <div class="error-msg" id="errorMsg">見つかりませんでした 😢</div>
 </div>
 
 <div class="selected-card" id="selectedCard">
   <div class="selected-name" id="selectedName">-</div>
-  <div class="selected-stamps">🌟 スタンプ <span id="selectedStamps">0</span> 個</div>
-
-  <!-- 受講済み講座 -->
+  <div><span class="selected-stamps">🌟 スタンプ <span id="selectedStamps">0</span> 個</span></div>
   <div class="course-history" id="courseHistory"></div>
-
-  <!-- QRコード表示 -->
   <div class="qr-container" id="qrContainer">
     <div id="qrCode"></div>
     <p>📱 このQRをスマホで読んでね！</p>
   </div>
-
   <button class="btn btn-accent" onclick="toggleQR()">📱 マイページQRを表示</button>
-
-  <div class="section-title" style="margin-top:16px">🎯 スタンプを押す</div>
-  <select id="courseSelect">
-    <option value="">講座を選んでください</option>
-  </select>
+  <div class="section-title" style="margin-top:12px">🎯 スタンプを押す</div>
+  <select id="courseSelect"><option value="">講座を選んでください</option></select>
   <button class="btn btn-green" onclick="addStamp()">✅ スタンプを押す！</button>
-  <button class="btn btn-gray" onclick="clearSelection()" style="margin-top:4px">← 別の人を選ぶ</button>
+  <button class="btn btn-gray" onclick="clearSelection()">← 別の人を選ぶ</button>
 </div>
 
 <div class="success-overlay" id="successOverlay">
+  <div style="display:flex;gap:8px;margin-bottom:12px">
+    <img src="https://yomiuri-jiyugaoka.github.io/stamp-rally/animal_melt1_cat.png" style="width:40px;object-fit:contain;animation:meltPop 1.5s ease infinite">
+    <img src="https://yomiuri-jiyugaoka.github.io/stamp-rally/animal_melt3_rabbit.png" style="width:40px;object-fit:contain;animation:meltPop 1.5s ease infinite;animation-delay:0.3s">
+    <img src="https://yomiuri-jiyugaoka.github.io/stamp-rally/animal_melt6_bear.png" style="width:40px;object-fit:contain;animation:meltPop 1.5s ease infinite;animation-delay:0.6s">
+  </div>
   <div class="success-icon">🌟</div>
   <div class="success-text" id="successText">スタンプを押しました！</div>
   <div class="success-sub" id="successSub"></div>
-  <button class="btn btn-gray" style="margin-top:32px;width:200px" onclick="closeSuccess()">次の人へ</button>
+  <button class="btn btn-gray" style="margin-top:24px;width:200px;background:white;color:#9A8AB0" onclick="closeSuccess()">次の人へ</button>
 </div>
 
 <script>
   const SUPABASE_URL = 'https://xxtqlxfknmbbfjdidjjl.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh4dHFseGZrbm1iYmZqZGlkampsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzM5MjIsImV4cCI6MjA5NjMwOTkyMn0.gtvl8xfz6a6axkn7OYsmZVGubIiVY5QRCWBiNY2oUwU';
-
   let currentParticipant = null;
   let currentStampCount = 0;
   let qrVisible = false;
@@ -121,23 +122,19 @@
     const resultsDiv = document.getElementById('searchResults');
     const errorMsg = document.getElementById('errorMsg');
     if (query.length < 1) { resultsDiv.innerHTML = ''; errorMsg.style.display = 'none'; return; }
-
     clearTimeout(searchTimer);
     searchTimer = setTimeout(async () => {
       const res = await fetch(
         `${SUPABASE_URL}/rest/v1/participants?or=(real_name.ilike.*${query}*,nickname.ilike.*${query}*)&select=*`,
-        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
-      );
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } });
       const data = await res.json();
       if (!data || data.length === 0) { resultsDiv.innerHTML = ''; errorMsg.style.display = 'block'; return; }
       errorMsg.style.display = 'none';
-
       const stampsRes = await fetch(`${SUPABASE_URL}/rest/v1/stamps?select=participant_id`,
         { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } });
       const stamps = await stampsRes.json();
       const stampMap = {};
       stamps.forEach(s => stampMap[s.participant_id] = (stampMap[s.participant_id] || 0) + 1);
-
       resultsDiv.innerHTML = data.map(p => `
         <div class="result-item" onclick="selectParticipant(${p.id}, '${p.nickname}', '${p.real_name}', ${stampMap[p.id] || 0})">
           <div>
@@ -145,8 +142,7 @@
             <div class="result-sub">${p.real_name}</div>
           </div>
           <div class="result-stamps">🌟${stampMap[p.id] || 0}</div>
-        </div>
-      `).join('');
+        </div>`).join('');
     }, 300);
   }
 
@@ -160,42 +156,30 @@
     document.getElementById('searchInput').value = '';
     document.getElementById('qrContainer').style.display = 'none';
     qrVisible = false;
-
-    // QRコード生成
     document.getElementById('qrCode').innerHTML = '';
-    const url = `${location.origin}/mypage.html?id=${id}`;
-    new QRCode(document.getElementById('qrCode'), { text: url, width: 200, height: 200 });
-
-    // 受講済み講座を取得
+    const url = `${location.origin}/stamp-rally/mypage.html?id=${id}`;
+    new QRCode(document.getElementById('qrCode'), { text: url, width: 180, height: 180 });
     const stampsRes = await fetch(
       `${SUPABASE_URL}/rest/v1/stamps?participant_id=eq.${id}&select=course_code`,
-      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
-    );
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } });
     const stamps = await stampsRes.json();
     const doneSet = new Set((stamps || []).map(s => s.course_code));
-
-    // 受講済み講座タグ表示
     const historyDiv = document.getElementById('courseHistory');
     if (stamps && stamps.length > 0) {
-      historyDiv.innerHTML = '<div class="course-history-title">📚 受講済み講座：</div>' +
+      historyDiv.innerHTML = '<div class="course-history-title">📚 受講済み：</div>' +
         stamps.map(s => `<span class="course-tag">${courseMap[s.course_code] || s.course_code}</span>`).join('');
     } else {
       historyDiv.innerHTML = '<div class="course-history-title">📚 まだ受講していません</div>';
     }
-
-    // プルダウンに受講済みをグレーアウト表示
     const select = document.getElementById('courseSelect');
     Array.from(select.options).forEach(opt => {
       if (!opt.value) return;
       if (doneSet.has(opt.value)) {
         opt.text = '✅ 済 ' + (courseMap[opt.value] || opt.value);
         opt.style.color = '#AAA';
-        opt.style.background = '#F5F5F5';
-        opt.disabled = false; // 選択可能のまま（警告で防ぐ）
       } else {
         opt.text = courseMap[opt.value] || opt.value;
         opt.style.color = '';
-        opt.style.background = '';
       }
     });
   }
@@ -209,85 +193,46 @@
     const courseCode = document.getElementById('courseSelect').value;
     if (!courseCode) { alert('講座を選んでください'); return; }
     if (!currentParticipant) return;
-
-    // 重複チェック
     const dupRes = await fetch(
       `${SUPABASE_URL}/rest/v1/stamps?participant_id=eq.${currentParticipant.id}&course_code=eq.${courseCode}&select=id`,
-      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
-    );
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } });
     const dupStamps = await dupRes.json();
-    if (dupStamps && dupStamps.length > 0) {
-      alert('この講座のスタンプはすでに押されています！');
-      return;
-    }
-
+    if (dupStamps && dupStamps.length > 0) { alert('この講座のスタンプはすでに押されています！'); return; }
     const res = await fetch(`${SUPABASE_URL}/rest/v1/stamps`, {
       method: 'POST',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify({
-        participant_id: currentParticipant.id,
-        course_code: courseCode,
-        stamped_at: new Date().toISOString()
-      })
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ participant_id: currentParticipant.id, course_code: courseCode, stamped_at: new Date().toISOString() })
     });
-
     if (res.ok) {
       currentStampCount++;
       document.getElementById('selectedStamps').textContent = currentStampCount;
-      document.getElementById('successText').textContent = `${currentParticipant.nickname}さんに スタンプを押しました！（${currentStampCount}個目）`;
+      document.getElementById('successText').textContent = `${currentParticipant.nickname}さん ${currentStampCount}個目！`;
       let sub = '';
       if (currentStampCount === 3) sub = '🎁 3個達成！プレゼントを渡してください！';
-      if (currentStampCount === 5) sub = '🏆 5個達成！スペシャルプレゼントを渡してください！';
+      else if (currentStampCount === 5) sub = '🏆 5個達成！スペシャルプレゼントを！';
+      else if (currentStampCount === 8) sub = '💎 8個達成！プレゼントを渡してください！';
+      else if (currentStampCount === 10) sub = '👑 10個チャンピオン達成！';
       document.getElementById('successSub').textContent = sub;
       document.getElementById('successOverlay').style.display = 'flex';
-
-      // エフェクト
       launchConfetti();
       playStampSound(currentStampCount >= 3);
-
-      // 受講済み講座を更新
       const course = courseMap[courseCode] || courseCode;
-      const historyDiv = document.getElementById('courseHistory');
-      historyDiv.innerHTML += `<span class="course-tag">${course}</span>`;
-
-      // プルダウンも更新（済みに）
+      document.getElementById('courseHistory').innerHTML += `<span class="course-tag">${course}</span>`;
       const select = document.getElementById('courseSelect');
       Array.from(select.options).forEach(opt => {
-        if (opt.value === courseCode) {
-          opt.text = '✅ 済 ' + (courseMap[courseCode] || courseCode);
-          opt.style.color = '#AAA';
-          opt.style.background = '#F5F5F5';
-        }
+        if (opt.value === courseCode) { opt.text = '✅ 済 ' + course; opt.style.color = '#AAA'; }
       });
-    } else {
-      alert('エラーが発生しました。もう一度試してください。');
-    }
+    } else { alert('エラーが発生しました。もう一度試してください。'); }
   }
 
-  function closeSuccess() {
-    document.getElementById('successOverlay').style.display = 'none';
-    document.getElementById('courseSelect').value = '';
-  }
+  function closeSuccess() { document.getElementById('successOverlay').style.display = 'none'; document.getElementById('courseSelect').value = ''; }
+  function clearSelection() { currentParticipant = null; document.getElementById('selectedCard').style.display = 'none'; document.getElementById('searchInput').value = ''; }
 
-  function clearSelection() {
-    currentParticipant = null;
-    document.getElementById('selectedCard').style.display = 'none';
-    document.getElementById('searchInput').value = '';
-  }
-
-  loadCourses();
-
-  // 紙吹雪エフェクト
   function launchConfetti() {
     const container = document.createElement('div');
     container.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:150;overflow:hidden';
     document.body.appendChild(container);
-    const colors = ['#FF6B35','#FFD700','#4ECDC4','#FF69B4','#7B68EE','#48BB78'];
+    const colors = ['#FFB3D1','#A8E4E0','#FFE899','#C9A8E8','#A8E8C0','#FFD6B0'];
     for (let i = 0; i < 50; i++) {
       setTimeout(() => {
         const piece = document.createElement('div');
@@ -299,33 +244,30 @@
     setTimeout(() => container.remove(), 3500);
   }
 
-  // 効果音
   function playStampSound(isAchievement) {
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
       if (isAchievement) {
         [523, 659, 784, 1047, 1319].forEach((freq, i) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
+          const osc = ctx.createOscillator(); const gain = ctx.createGain();
           osc.connect(gain); gain.connect(ctx.destination);
           osc.frequency.value = freq; osc.type = 'triangle';
           const t = ctx.currentTime + i * 0.1;
-          gain.gain.setValueAtTime(0.2, t);
-          gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
+          gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
           osc.start(t); osc.stop(t + 0.4);
         });
       } else {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
+        const osc = ctx.createOscillator(); const gain = ctx.createGain();
         osc.connect(gain); gain.connect(ctx.destination);
         osc.frequency.setValueAtTime(600, ctx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(900, ctx.currentTime + 0.15);
-        gain.gain.setValueAtTime(0.2, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
         osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.3);
       }
     } catch(e) {}
   }
+
+  loadCourses();
 </script>
 </body>
 </html>

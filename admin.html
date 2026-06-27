@@ -7,27 +7,27 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap');
-  :root { --primary: #FF6B35; --accent: #4ECDC4; --bg: #F5F7FA; --card: #FFFFFF; --text: #2D2D2D; --muted: #888; }
+  :root { --primary: #FF8C69; --accent: #7DD5CC; --bg: #FFF5FB; --card: #FFFFFF; --text: #4A4A4A; --muted: #AAA; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Kosugi Maru', sans-serif; background: var(--bg); min-height: 100vh; padding: 16px; }
+  body { font-family: 'Kosugi Maru', sans-serif; background: var(--bg); min-height: 100vh; padding: 16px; background-image: radial-gradient(circle at 10% 10%, #FFE4F0 0%, transparent 30%), radial-gradient(circle at 90% 90%, #E4F8FF 0%, transparent 30%); }
   .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
   .header-title { font-size: 18px; font-weight: bold; color: var(--primary); }
   .back-btn { background: white; border: none; border-radius: 10px; padding: 8px 14px; font-size: 13px; font-family: 'Kosugi Maru', sans-serif; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-  .card { background: var(--card); border-radius: 16px; padding: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 16px; }
+  .card { background: var(--card); border-radius: 20px; padding: 16px; box-shadow: 0 4px 16px rgba(200,150,220,0.08); margin-bottom: 16px; border: 1.5px solid rgba(200,160,220,0.1); }
   .section-title { font-size: 15px; font-weight: bold; color: var(--text); margin-bottom: 14px; }
   .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .stat-box { background: var(--bg); border-radius: 12px; padding: 12px; text-align: center; }
-  .stat-num { font-size: 24px; font-weight: bold; color: var(--primary); }
+  .stat-box { background: linear-gradient(135deg, #FFF0F8, #F0F8FF); border-radius: 14px; padding: 12px; text-align: center; border: 1.5px solid rgba(200,160,220,0.15); }
+  .stat-num { font-size: 24px; font-weight: bold; color: #FF8C69; }
   .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
   .btn { padding: 10px 16px; border: none; border-radius: 10px; font-size: 14px; font-family: 'Kosugi Maru', sans-serif; cursor: pointer; transition: transform 0.1s; margin-right: 8px; margin-bottom: 8px; }
   .btn:active { transform: scale(0.97); }
-  .btn-primary { background: var(--primary); color: white; }
-  .btn-accent { background: var(--accent); color: white; }
-  .btn-green { background: #48BB78; color: white; }
-  .btn-gray { background: #EEE; color: var(--text); }
+  .btn-primary { background: linear-gradient(135deg, #FFB3A0, #FF9B85); color: white; }
+  .btn-accent { background: linear-gradient(135deg, #A8E4E0, #7DCFCA); color: #4A8A87; }
+  .btn-green { background: linear-gradient(135deg, #A8E8C0, #80D8A0); color: #3A7A50; }
+  .btn-gray { background: #F5F0FF; color: #9A8AB0; border: 1px solid #E8D8F8; }
   .btn-full { width: 100%; padding: 12px; }
-  input, select, textarea { width: 100%; padding: 10px 12px; border: 2px solid #EEE; border-radius: 10px; font-size: 14px; font-family: 'Kosugi Maru', sans-serif; color: var(--text); outline: none; margin-bottom: 10px; }
-  input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+  input, select, textarea { width: 100%; padding: 10px 12px; border: 2px solid #E8D8F8; border-radius: 12px; font-size: 14px; font-family: 'Kosugi Maru', sans-serif; color: var(--text); outline: none; margin-bottom: 10px; background: white; }
+  input:focus, select:focus, textarea:focus { border-color: #FFB3A0; }
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th { background: var(--bg); padding: 10px 8px; text-align: left; color: var(--muted); white-space: nowrap; }
@@ -37,16 +37,16 @@
   .prize-3 { background: #FFF3CD; color: #856404; }
   .prize-5 { background: #D1ECF1; color: #0C5460; }
   .tab-group { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; }
-  .tab { padding: 8px 14px; border: none; border-radius: 8px; font-size: 13px; font-family: 'Kosugi Maru', sans-serif; cursor: pointer; background: #EEE; color: var(--muted); white-space: nowrap; }
-  .tab.active { background: var(--primary); color: white; }
+  .tab { padding: 8px 14px; border: none; border-radius: 10px; font-size: 13px; font-family: 'Kosugi Maru', sans-serif; cursor: pointer; background: #F5F0FF; color: #9A8AB0; white-space: nowrap; border: 1px solid #E8D8F8; }
+  .tab.active { background: linear-gradient(135deg, #FFB3A0, #FF9B85); color: white; border-color: transparent; }
   .panel { display: none; }
   .panel.active { display: block; }
   .success-msg { background: #F0FFF4; border: 1px solid #9AE6B4; color: #276749; padding: 8px 12px; border-radius: 8px; font-size: 13px; margin-top: 8px; display: none; }
-  .login-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
-  .login-box { background: white; border-radius: 20px; padding: 32px; width: 100%; max-width: 360px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); text-align: center; }
+  .login-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #FFF0F8, #F0F8FF); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+  .login-box { background: white; border-radius: 28px; padding: 32px; width: 100%; max-width: 360px; box-shadow: 0 8px 32px rgba(200,150,220,0.15); text-align: center; border: 2px solid rgba(200,160,220,0.15); }
   .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
   .modal.open { display: flex; }
-  .modal-box { background: white; border-radius: 20px; padding: 24px; width: 100%; max-width: 480px; max-height: 80vh; overflow-y: auto; }
+  .modal-box { background: white; border-radius: 24px; padding: 24px; width: 100%; max-width: 480px; max-height: 80vh; overflow-y: auto; border: 2px solid rgba(200,160,220,0.15); box-shadow: 0 8px 32px rgba(200,150,220,0.15); }
   .qr-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
   .qr-item { background: white; border: 1px solid #EEE; border-radius: 12px; padding: 16px; text-align: center; }
   .qr-item .course-name { font-size: 12px; color: var(--text); margin-top: 8px; font-weight: bold; line-height: 1.3; }
@@ -66,7 +66,12 @@
 
 <div class="login-overlay" id="loginOverlay">
   <div class="login-box">
-    <div style="font-size:40px;margin-bottom:12px">🔐</div>
+    <div style="display:flex;justify-content:center;gap:6px;margin-bottom:8px">
+      <img src="https://yomiuri-jiyugaoka.github.io/stamp-rally/animal_melt1_cat.png" style="width:36px;object-fit:contain">
+      <img src="https://yomiuri-jiyugaoka.github.io/stamp-rally/yumekawa_animal_panda.png" style="width:36px;object-fit:contain">
+      <img src="https://yomiuri-jiyugaoka.github.io/stamp-rally/animal_melt3_rabbit.png" style="width:36px;object-fit:contain">
+    </div>
+    <div style="font-size:32px;margin-bottom:8px">🔐</div>
     <div style="font-size:20px;font-weight:bold;margin-bottom:8px">管理者ログイン</div>
     <div style="font-size:13px;color:#888;margin-bottom:20px">パスワードを入力してください</div>
     <input type="password" id="adminPass" placeholder="パスワード" style="margin-bottom:12px">
@@ -92,7 +97,10 @@
 
 <div class="header no-print">
   <button class="back-btn" onclick="location.href='index.html'">← 戻る</button>
-  <div class="header-title">⚙️ 管理者画面</div>
+  <div class="header-title" style="display:flex;align-items:center;gap:8px">
+    <img src="https://yomiuri-jiyugaoka.github.io/stamp-rally/yumekawa_animal_panda.png" style="width:28px;height:28px;object-fit:contain">
+    ⚙️ 管理者画面
+  </div>
   <div style="width:60px"></div>
 </div>
 
