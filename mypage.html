@@ -561,35 +561,29 @@
   <div class="card course-card">
     <div class="section-title">📚 参加した講座</div>
     <div id="courseList"><div class="empty-msg">まだ講座に参加していません 🌱</div></div>
+    <button class="btn btn-download" onclick="downloadDiaryPDF()" style="margin-top:12px">📥 日記を全部ダウンロード</button>
   </div>
 
-  <!-- 日記 -->
-  <div class="card diary-card">
-    <div class="tab-group">
-      <button class="tab active" id="tab-write" onclick="switchDiaryTab('write')">✏️ 日記を書く</button>
-      <button class="tab" id="tab-list" onclick="switchDiaryTab('list')">📖 日記を見る</button>
-    </div>
-
-    <div class="panel active" id="panel-write">
+  <!-- 日記入力モーダル -->
+  <div id="diaryModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:500;align-items:center;justify-content:center;padding:16px">
+    <div style="background:white;border-radius:24px;padding:20px;width:100%;max-width:380px;max-height:85vh;overflow-y:auto">
+      <div style="font-size:15px;font-weight:bold;color:#C090D0;background:#F8F0FF;display:inline-block;padding:4px 12px;border-radius:20px;margin-bottom:12px" id="diaryModalCourseName">講座名</div>
+      <div id="diaryModalStaffComment" style="display:none"></div>
       <div class="diary-form">
-        <select class="diary-select" id="diarySelect" onchange="onCourseSelectChange()"><option value="">📖 講座を選んでね</option></select>
         <textarea id="diaryText" placeholder="今日はどんなことをしたかな？感想を書いてみよう！（200文字まで）" maxlength="200"></textarea>
         <div class="photo-thumbs" id="photoThumbs"></div>
-        <div class="photo-add-btn" id="photoAddBtn" onclick="onPhotoAddClick()" style="opacity:0.5">
+        <div class="photo-add-btn" id="photoAddBtn" onclick="onPhotoAddClick()">
           <div style="font-size:28px">📷</div>
           <div style="font-weight:bold;margin-top:4px">写真をえらぶ（最大3枚）</div>
-          <div style="font-size:11px;margin-top:2px" id="photoAddNote">※まず講座を選んでね</div>
+          <div style="font-size:11px;margin-top:2px" id="photoAddNote">※自動で小さくなります</div>
         </div>
         <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="addPhoto(event)">
-        <button class="btn btn-primary" onclick="saveDiary()">✏️ 日記を保存する</button>
+        <button class="btn btn-primary" onclick="saveDiary()" id="diarySaveBtn">✏️ 日記を保存する</button>
+        <button class="btn btn-gray" id="diaryDeleteBtn" style="display:none;background:#FFF0F0;color:#CC3333" onclick="deleteCurrentDiary()">🗑️ この日記を削除する</button>
+        <button class="btn btn-gray" onclick="closeDiaryModal()">とじる</button>
         <div class="success-msg" id="successMsg">日記を保存しました！✨</div>
         <div class="error-msg" id="errorMsg">エラーが発生しました。もう一度試してね。</div>
       </div>
-    </div>
-
-    <div class="panel" id="panel-list">
-      <div id="diaryList"><div class="empty-msg">まだ日記がありません 📝</div></div>
-      <button class="btn btn-download" onclick="downloadDiaryPDF()" style="margin-top:12px">📥 日記を全部ダウンロード</button>
     </div>
   </div>
 
@@ -603,6 +597,9 @@
   const params = new URLSearchParams(location.search);
   const participantId = params.get('id');
   let courseMap = {};
+  let diaryMap = {};
+  let currentDiaryCourse = null;
+  let existingPhotoUrls = [];
   let compressedImages = []; // 最大3枚
 
   async function init() {
@@ -624,15 +621,20 @@
 
     document.getElementById('userName').textContent = participants[0].nickname;
 
-    const [sRes, cRes] = await Promise.all([
+    const [sRes, cRes, dRes] = await Promise.all([
       fetch(`${SUPABASE_URL}/rest/v1/stamps?participant_id=eq.${participantId}&select=*&order=stamped_at.asc`,
         { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }),
       fetch(`${SUPABASE_URL}/rest/v1/courses?select=*`,
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }),
+      fetch(`${SUPABASE_URL}/rest/v1/diaries?participant_id=eq.${participantId}&select=*`,
         { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } })
     ]);
     const stamps = await sRes.json();
     const courses = await cRes.json();
+    const diaries = await dRes.json();
     courses.forEach(c => courseMap[c.course_code] = c.course_name);
+    diaryMap = {};
+    (diaries || []).forEach(d => { diaryMap[d.course_code] = d; });
 
     const prize3Done = stamps.some(s => s.prize_3);
     const prize5Done = stamps.some(s => s.prize_5);
@@ -792,17 +794,15 @@
         const date = new Date(s.stamped_at).toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' });
         const icons = ['📚','🎨','🎵','⚽','🎭','🌿','🔬','🎪','🏃','🎯'];
         const icon = icons[Math.abs(s.course_code.charCodeAt(0)) % icons.length];
-        return '<div class="course-item"><div class="course-icon-wrap">' + icon + '</div><div><div class="course-name">' + (courseMap[s.course_code] || s.course_code) + '</div><div class="course-date">📅 ' + date + '</div></div></div>';
+        const diary = diaryMap[s.course_code];
+        const thumb = diary && diary.photo_url
+          ? '<img src="' + diary.photo_url + '" style="width:32px;height:32px;object-fit:cover;border-radius:8px;margin-right:4px">'
+          : '';
+        const diaryBtn = diary
+          ? '<button onclick="openDiaryModal(\'' + s.course_code + '\')" style="background:#F8F0FF;color:#B090D0;border:1.5px solid #ECD5F5;border-radius:20px;padding:6px 12px;font-size:11px;font-family:Kosugi Maru,sans-serif;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:4px">' + thumb + '✏️ 日記あり</button>'
+          : '<button onclick="openDiaryModal(\'' + s.course_code + '\')" style="background:#FFF0F8;color:#D490B8;border:1.5px solid #FFD0E8;border-radius:20px;padding:6px 12px;font-size:11px;font-family:Kosugi Maru,sans-serif;cursor:pointer;white-space:nowrap">📝 日記を書く</button>';
+        return '<div class="course-item"><div class="course-icon-wrap">' + icon + '</div><div style="flex:1"><div class="course-name">' + (courseMap[s.course_code] || s.course_code) + '</div><div class="course-date">📅 ' + date + '</div></div>' + diaryBtn + '</div>';
       }).join('');
-
-      const select = document.getElementById('diarySelect');
-      select.innerHTML = '<option value="">講座を選んでね</option>';
-      stamps.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s.course_code;
-        opt.textContent = courseMap[s.course_code] || s.course_code;
-        select.appendChild(opt);
-      });
     }
 
     document.getElementById('loadingDiv').style.display = 'none';
@@ -894,14 +894,6 @@
     bubble.textContent = msg;
   }
 
-  function switchDiaryTab(tab) {
-    document.getElementById('tab-write').className = 'tab' + (tab === 'write' ? ' active' : '');
-    document.getElementById('tab-list').className = 'tab' + (tab === 'list' ? ' active' : '');
-    document.getElementById('panel-write').className = 'panel' + (tab === 'write' ? ' active' : '');
-    document.getElementById('panel-list').className = 'panel' + (tab === 'list' ? ' active' : '');
-    if (tab === 'list') loadDiaries();
-  }
-
   function showSaveEffect() {
     const effect = document.getElementById('saveEffect');
     const overlay = document.getElementById('saveOverlay');
@@ -938,31 +930,57 @@
     });
   }
 
-  function onCourseSelectChange() {
-    const course = document.getElementById('diarySelect').value;
-    const btn = document.getElementById('photoAddBtn');
-    const note = document.getElementById('photoAddNote');
-    if (course) {
-      btn.style.opacity = '1';
-      note.textContent = '※自動で小さくなります';
+  function openDiaryModal(courseCode) {
+    currentDiaryCourse = courseCode;
+    compressedImages = [];
+    document.getElementById('diaryModalCourseName').textContent = '📖 ' + (courseMap[courseCode] || courseCode);
+    document.getElementById('successMsg').style.display = 'none';
+    document.getElementById('errorMsg').style.display = 'none';
+
+    const diary = diaryMap[courseCode];
+    const photoAddBtn = document.getElementById('photoAddBtn');
+    photoAddBtn.style.opacity = '1';
+    document.getElementById('photoAddNote').textContent = '※自動で小さくなります';
+
+    if (diary) {
+      document.getElementById('diaryText').value = diary.diary_text || '';
+      document.getElementById('diarySaveBtn').textContent = '✏️ 日記を更新する';
+      document.getElementById('diaryDeleteBtn').style.display = 'block';
+      // 既存写真をサムネイル表示用に保持（差し替え時は新しい写真で上書き）
+      existingPhotoUrls = [diary.photo_url, diary.photo_url2, diary.photo_url3].filter(Boolean);
+      const commentDiv = document.getElementById('diaryModalStaffComment');
+      if (diary.staff_comment) {
+        commentDiv.innerHTML = '<div class="staff-comment"><div class="staff-comment-label">💬 スタッフより</div><div class="staff-comment-text">' + diary.staff_comment + '</div></div>';
+        commentDiv.style.display = 'block';
+      } else {
+        commentDiv.style.display = 'none';
+      }
     } else {
-      btn.style.opacity = '0.5';
-      note.textContent = '※まず講座を選んでね';
+      document.getElementById('diaryText').value = '';
+      document.getElementById('diarySaveBtn').textContent = '✏️ 日記を保存する';
+      document.getElementById('diaryDeleteBtn').style.display = 'none';
+      existingPhotoUrls = [];
+      document.getElementById('diaryModalStaffComment').style.display = 'none';
     }
+    updatePhotoThumbs();
+    document.getElementById('diaryModal').style.display = 'flex';
+  }
+
+  function closeDiaryModal() {
+    document.getElementById('diaryModal').style.display = 'none';
+    currentDiaryCourse = null;
+    compressedImages = [];
+    existingPhotoUrls = [];
   }
 
   function onPhotoAddClick() {
-    const course = document.getElementById('diarySelect').value;
-    if (!course) {
-      alert('まず講座を選んでね！📖');
-      return;
-    }
+    if ((compressedImages.length + existingPhotoUrls.length) >= 3) return;
     document.getElementById('photoInput').click();
   }
 
   function addPhoto(event) {
     const file = event.target.files[0];
-    if (!file || compressedImages.length >= 3) return;
+    if (!file || (compressedImages.length + existingPhotoUrls.length) >= 3) return;
     document.getElementById('photoInput').value = '';
 
     const reader = new FileReader();
@@ -987,13 +1005,20 @@
 
   function updatePhotoThumbs() {
     const thumbs = document.getElementById('photoThumbs');
-    thumbs.innerHTML = compressedImages.map((img, i) => `
+    const existingHtml = existingPhotoUrls.map((url, i) => `
+      <div class="photo-thumb">
+        <img src="${url}">
+        <button class="photo-thumb-del" onclick="removeExistingPhoto(${i})">×</button>
+      </div>
+    `).join('');
+    const newHtml = compressedImages.map((img, i) => `
       <div class="photo-thumb">
         <img src="${img}">
         <button class="photo-thumb-del" onclick="removePhoto(${i})">×</button>
       </div>
     `).join('');
-    document.getElementById('photoAddBtn').style.display = compressedImages.length >= 3 ? 'none' : 'block';
+    thumbs.innerHTML = existingHtml + newHtml;
+    document.getElementById('photoAddBtn').style.display = (compressedImages.length + existingPhotoUrls.length) >= 3 ? 'none' : 'block';
   }
 
   function removePhoto(index) {
@@ -1001,93 +1026,9 @@
     updatePhotoThumbs();
   }
 
-  async function saveDiary() {
-    const course = document.getElementById('diarySelect').value;
-    const text = document.getElementById('diaryText').value.trim();
-    const successMsg = document.getElementById('successMsg');
-    const errorMsg = document.getElementById('errorMsg');
-    successMsg.style.display = 'none';
-    errorMsg.style.display = 'none';
-    if (!course) { alert('講座を選んでね！📖'); return; }
-    if (!text && compressedImages.length === 0) { alert('日記の文章か写真のどちらかを入れてね！'); return; }
-
-    // Cloudflare Workers経由で写真をR2にアップロード
-    const photoUrls = [];
-    for (let i = 0; i < compressedImages.length; i++) {
-      try {
-        const uploadRes = await fetch(WORKER_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            imageData: compressedImages[i],
-            fileName: 'photo' + (i+1) + '.jpg',
-            participantId: participantId
-          })
-        });
-        const uploadData = await uploadRes.json();
-        if (uploadData.url) photoUrls.push(uploadData.url);
-      } catch (e) {
-        console.error('Photo upload failed:', e);
-        photoUrls.push(null);
-      }
-    }
-
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/diaries`, {
-      method: 'POST',
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-      body: JSON.stringify({
-        participant_id: parseInt(participantId),
-        course_code: course,
-        diary_text: text,
-        photo_url: photoUrls[0] || null,
-        photo_url2: photoUrls[1] || null,
-        photo_url3: photoUrls[2] || null
-      })
-    });
-
-    if (res.ok) {
-      document.getElementById('diaryText').value = '';
-      document.getElementById('diarySelect').value = '';
-      onCourseSelectChange();
-      compressedImages = [];
-      updatePhotoThumbs();
-      showSaveEffect();
-    } else {
-      errorMsg.style.display = 'block';
-    }
-  }
-
-  async function loadDiaries() {
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/diaries?participant_id=eq.${participantId}&select=*&order=created_at.desc`,
-      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
-    );
-    const diaries = await res.json();
-    const list = document.getElementById('diaryList');
-    if (!diaries.length) { list.innerHTML = '<div class="empty-msg">まだ日記がありません</div>'; return; }
-    list.innerHTML = diaries.map(d => {
-      const date = new Date(d.created_at).toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' });
-      const photos = [d.photo_url, d.photo_url2, d.photo_url3].filter(Boolean);
-      let photoHtml = '';
-      if (photos.length === 1) {
-        photoHtml = '<div class="photo-grid-1" style="margin-top:8px"><img src="' + photos[0] + '"></div>';
-      } else if (photos.length === 2) {
-        photoHtml = '<div class="photo-grid-2" style="margin-top:8px"><img src="' + photos[0] + '"><img src="' + photos[1] + '"></div>';
-      } else if (photos.length === 3) {
-        photoHtml = '<div class="photo-grid-3" style="margin-top:8px"><div class="photo-main"><img src="' + photos[0] + '"></div><img src="' + photos[1] + '"><img src="' + photos[2] + '"></div>';
-      }
-      return '<div class="diary-item">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
-          '<div class="diary-item-course">📖 ' + (courseMap[d.course_code] || d.course_code) + '</div>' +
-          '<button onclick="deleteDiary(' + d.id + ')" style="background:#FFF0F0;border:none;border-radius:8px;padding:4px 10px;font-size:12px;color:#CC3333;cursor:pointer;font-family:Kosugi Maru,sans-serif">🗑️ 削除</button>' +
-        '</div>' +
-        '<div class="diary-item-text">' + (d.diary_text || '') + '</div>' + photoHtml +
-        (d.staff_comment ? '<div class="staff-comment"><div class="staff-comment-label">💬 スタッフより</div><div class="staff-comment-text">' + d.staff_comment + '</div></div>' : '') +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">' +
-          '<div class="diary-item-date">' + date + '</div>' +
-          '<button onclick="downloadSingleDiary(' + d.id + ')" style="background:#667EEA;color:white;border:none;border-radius:10px;padding:6px 14px;font-size:13px;font-family:Kosugi Maru,sans-serif;cursor:pointer">📥 ダウンロード</button>' +
-        '</div></div>';
-    }).join('');
+  function removeExistingPhoto(index) {
+    existingPhotoUrls.splice(index, 1);
+    updatePhotoThumbs();
   }
 
   async function downloadDiaryPDF() {
@@ -1161,72 +1102,92 @@
     }, 500);
   }
 
-  async function downloadSingleDiary(diaryId) {
-    const res = await fetch(
-      SUPABASE_URL + '/rest/v1/diaries?id=eq.' + diaryId + '&select=*',
-      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }
-    );
-    const diaries = await res.json();
-    if (!diaries || diaries.length === 0) return;
-
-    const d = diaries[0];
-    const name = document.getElementById('userName').textContent;
-    const date = new Date(d.created_at).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
-    const courseName = courseMap[d.course_code] || d.course_code;
-
-    const photos = [d.photo_url, d.photo_url2, d.photo_url3].filter(Boolean);
-    let photoHtml = '';
-    if (photos.length === 1) {
-      photoHtml = `<img src="${photos[0]}" style="width:100%;border-radius:8px;margin-top:12px;object-fit:contain;background:#f0f0f0">`;
-    } else if (photos.length === 2) {
-      photoHtml = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:12px"><img src="${photos[0]}" style="width:100%;border-radius:6px;height:200px;object-fit:contain;background:#f0f0f0"><img src="${photos[1]}" style="width:100%;border-radius:6px;height:200px;object-fit:contain;background:#f0f0f0"></div>`;
-    } else if (photos.length === 3) {
-      photoHtml = `<div style="margin-top:12px"><img src="${photos[0]}" style="width:100%;border-radius:6px;height:250px;object-fit:contain;background:#f0f0f0;margin-bottom:4px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px"><img src="${photos[1]}" style="width:100%;border-radius:6px;height:180px;object-fit:contain;background:#f0f0f0"><img src="${photos[2]}" style="width:100%;border-radius:6px;height:180px;object-fit:contain;background:#f0f0f0"></div></div>`;
-    }
-
-    const html = `<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<title>${name}さんの日記 - ${date}</title>
-<style>
-  body { font-family: 'Hiragino Kaku Gothic Pro', 'メイリオ', sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background: #FFF9F0; }
-  h1 { color: #FF6B35; text-align: center; font-size: 24px; margin-bottom: 4px; }
-  .subtitle { text-align: center; color: #888; margin-bottom: 32px; font-size: 13px; }
-  .diary { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-  .course { color: #FF6B35; font-weight: bold; font-size: 15px; margin-bottom: 12px; }
-  .text { font-size: 15px; line-height: 1.8; color: #2D2D2D; white-space: pre-wrap; }
-  .date { font-size: 12px; color: #888; margin-top: 12px; text-align: right; }
-  @media print { body { background: white; } .diary { box-shadow: none; border: 1px solid #EEE; } }
-</style>
-</head>
-<body>
-<h1>🎪 ${name}さんのなつやすみ日記</h1>
-<div class="subtitle">よみうりカルチャー自由が丘 2026年 夏</div>
-<div class="diary">
-  <div class="course">📖 ${courseName}</div>
-  <div class="text">${(d.diary_text || '').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
-  ${photoHtml}
-  <div class="date">${date}</div>
-</div>
-</body></html>`;
-
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = name + 'の日記_' + date + '.html';
-    a.click();
-    setTimeout(() => alert('ダウンロードしたファイルをブラウザで開いて「印刷」するとPDFで保存できます！'), 500);
-  }
-
-  async function deleteDiary(diaryId) {
+  async function deleteCurrentDiary() {
+    if (!currentDiaryCourse) return;
+    const diary = diaryMap[currentDiaryCourse];
+    if (!diary) return;
     if (!confirm('この日記を削除しますか？')) return;
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/diaries?id=eq.${diaryId}`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/diaries?id=eq.${diary.id}`, {
       method: 'DELETE',
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
     });
-    if (res.ok) loadDiaries();
-    else alert('削除に失敗しました。');
+    if (res.ok) {
+      delete diaryMap[currentDiaryCourse];
+      closeDiaryModal();
+      init();
+    } else {
+      alert('削除に失敗しました。');
+    }
+  }
+
+  async function saveDiary() {
+    const course = currentDiaryCourse;
+    const text = document.getElementById('diaryText').value.trim();
+    const successMsg = document.getElementById('successMsg');
+    const errorMsg = document.getElementById('errorMsg');
+    successMsg.style.display = 'none';
+    errorMsg.style.display = 'none';
+    if (!course) { alert('講座が選ばれていません。もう一度開いてね！'); return; }
+    if (!text && compressedImages.length === 0 && existingPhotoUrls.length === 0) { alert('日記の文章か写真のどちらかを入れてね！'); return; }
+
+    // Cloudflare Workers経由で新しい写真をR2にアップロード
+    const newPhotoUrls = [];
+    for (let i = 0; i < compressedImages.length; i++) {
+      try {
+        const uploadRes = await fetch(WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            imageData: compressedImages[i],
+            fileName: 'photo' + (i+1) + '.jpg',
+            participantId: participantId
+          })
+        });
+        const uploadData = await uploadRes.json();
+        if (uploadData.url) newPhotoUrls.push(uploadData.url);
+      } catch (e) {
+        console.error('Photo upload failed:', e);
+      }
+    }
+
+    // 既存の写真（削除されなかったもの）＋新しい写真　を3枚まで
+    const photoUrls = [...existingPhotoUrls, ...newPhotoUrls].slice(0, 3);
+
+    const existingDiary = diaryMap[course];
+    let res;
+    if (existingDiary) {
+      res = await fetch(`${SUPABASE_URL}/rest/v1/diaries?id=eq.${existingDiary.id}`, {
+        method: 'PATCH',
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({
+          diary_text: text,
+          photo_url: photoUrls[0] || null,
+          photo_url2: photoUrls[1] || null,
+          photo_url3: photoUrls[2] || null
+        })
+      });
+    } else {
+      res = await fetch(`${SUPABASE_URL}/rest/v1/diaries`, {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({
+          participant_id: parseInt(participantId),
+          course_code: course,
+          diary_text: text,
+          photo_url: photoUrls[0] || null,
+          photo_url2: photoUrls[1] || null,
+          photo_url3: photoUrls[2] || null
+        })
+      });
+    }
+
+    if (res.ok) {
+      closeDiaryModal();
+      showSaveEffect();
+      await init();
+    } else {
+      errorMsg.style.display = 'block';
+    }
   }
 
   init();
