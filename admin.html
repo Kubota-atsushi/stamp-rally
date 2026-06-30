@@ -114,15 +114,36 @@
 </div>
 
 <div class="tab-group no-print">
-  <button class="tab active" onclick="switchTab('participants')">参加者一覧</button>
+  <button class="tab active" onclick="switchTab('reception')">🎯 受付</button>
+  <button class="tab" onclick="switchTab('participants')">参加者一覧</button>
   <button class="tab" onclick="switchTab('add')">参加者追加</button>
   <button class="tab" onclick="switchTab('diaries')">日記管理</button>
   <button class="tab" onclick="switchTab('qr')">講座QR印刷</button>
   <button class="tab" onclick="switchTab('export')">CSV出力</button>
 </div>
 
+<!-- 受付パネル -->
+<div class="panel active" id="panel-reception">
+  <div class="card">
+    <div class="section-title">🔍 参加者を探す</div>
+    <input type="text" id="receptionSearchInput" placeholder="名前で検索（ひらがな・カタカナ・漢字）" oninput="receptionSearch()">
+    <div id="receptionSearchResults" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
+    <div class="error-msg" id="receptionErrorMsg" style="display:none">見つかりませんでした 😢</div>
+  </div>
+
+  <div class="card" id="receptionSelectedCard" style="display:none;background:linear-gradient(135deg,#FFF0F8,#F0F8FF)">
+    <div style="font-size:20px;font-weight:bold;color:var(--text);margin-bottom:4px" id="receptionSelectedName">-</div>
+    <div style="margin-bottom:12px"><span style="font-size:14px;color:var(--primary);background:white;display:inline-block;padding:4px 12px;border-radius:20px">🌟 スタンプ <span id="receptionSelectedStamps">0</span> 個</span></div>
+    <div id="receptionCourseHistory" style="margin-bottom:10px"></div>
+    <div class="section-title" style="margin-top:12px">🎯 スタンプを押す</div>
+    <select id="receptionCourseSelect"><option value="">講座を選んでください</option></select>
+    <button class="btn btn-green btn-full" onclick="receptionAddStamp()">✅ スタンプを押す！</button>
+    <button class="btn btn-gray btn-full" onclick="receptionClearSelection()">← 別の人を選ぶ</button>
+  </div>
+</div>
+
 <!-- 参加者一覧 -->
-<div class="panel active" id="panel-participants">
+<div class="panel" id="panel-participants">
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <div class="section-title" style="margin-bottom:0">👥 参加者一覧</div>
@@ -148,6 +169,17 @@
     </div>
     <button class="btn btn-primary btn-full" onclick="addParticipant()">➕ 追加する</button>
     <div class="success-msg" id="addSuccess">追加しました！</div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">📚 講座（クラス）を追加</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">増設クラスなど新しい講座を追加するときに使います</p>
+    <div class="form-grid">
+      <input type="text" id="newCourseCode" placeholder="講座コード（例：18160050）">
+      <input type="text" id="newCourseName" placeholder="講座名（例：夏のクラフト教室）">
+    </div>
+    <button class="btn btn-accent btn-full" onclick="addCourse()">📚 講座を追加する</button>
+    <div class="success-msg" id="addCourseSuccess">講座を追加しました！QR印刷タブで確認できます</div>
   </div>
 </div>
 
@@ -205,6 +237,7 @@
       document.getElementById('loginOverlay').style.display = 'none';
       loadParticipants();
       loadCourseMap();
+      loadReceptionCourses();
     } else {
       document.getElementById('loginError').style.display = 'block';
     }
@@ -214,13 +247,14 @@
 
   function switchTab(tab) {
     document.querySelectorAll('.tab').forEach((t, i) => {
-      const names = ['participants', 'add', 'diaries', 'qr', 'export'];
+      const names = ['reception', 'participants', 'add', 'diaries', 'qr', 'export'];
       t.className = 'tab' + (names[i] === tab ? ' active' : '');
     });
     document.querySelectorAll('.panel').forEach(p => p.className = 'panel');
     document.getElementById('panel-' + tab).className = 'panel active';
     if (tab === 'qr') loadQRCodes();
     if (tab === 'diaries') loadDiaries();
+    if (tab === 'reception') loadReceptionCourses();
   }
 
   async function loadCourseMap() {
@@ -379,6 +413,25 @@
     } else { alert('追加に失敗しました。ニックネームが重複している可能性があります。'); }
   }
 
+  async function addCourse() {
+    const code = document.getElementById('newCourseCode').value.trim();
+    const name = document.getElementById('newCourseName').value.trim();
+    if (!code || !name) { alert('講座コードと講座名を入力してください'); return; }
+    const res = await fetch(SUPABASE_URL + '/rest/v1/courses', {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ course_code: code, course_name: name })
+    });
+    if (res.ok) {
+      document.getElementById('addCourseSuccess').style.display = 'block';
+      document.getElementById('newCourseCode').value = '';
+      document.getElementById('newCourseName').value = '';
+      setTimeout(() => document.getElementById('addCourseSuccess').style.display = 'none', 4000);
+      await loadCourseMap();
+      await loadReceptionCourses();
+    } else { alert('追加に失敗しました。講座コードが重複している可能性があります。'); }
+  }
+
   async function loadDiaries() {
     const [pRes, cRes, dRes] = await Promise.all([
       fetch(SUPABASE_URL + '/rest/v1/participants?select=id,nickname,real_name',
@@ -409,7 +462,7 @@
           '<div style="font-size:12px;color:var(--muted)">' + date + '</div>' +
         '</div>' +
         '<div style="font-size:12px;color:var(--accent);margin-bottom:4px">📖 ' + courseName + '</div>' +
-        '<div style="font-size:14px;color:var(--text);margin-bottom:8px">' + d.diary_text + '</div>' +
+        '<div style="font-size:14px;color:var(--text);margin-bottom:8px">' + (d.diary_text || '') + '</div>' +
         photoHtml +
         '<div style="margin-top:8px">' +
           '<div style="font-size:12px;color:#48BB78;margin-bottom:4px">💬 スタッフコメント</div>' +
@@ -571,6 +624,135 @@
     a.href = URL.createObjectURL(blob);
     a.download = filename;
     a.click();
+  }
+
+  // ===== 受付機能（管理者画面統合版） =====
+  let receptionCurrentParticipant = null;
+  let receptionCurrentStampCount = 0;
+  let receptionSearchTimer = null;
+
+  function toKatakanaQuery(str) {
+    return str.replace(/[\u3041-\u3096]/g, ch => String.fromCharCode(ch.charCodeAt(0) + 0x60));
+  }
+
+  async function loadReceptionCourses() {
+    if (Object.keys(courseMap).length === 0) await loadCourseMap();
+    const select = document.getElementById('receptionCourseSelect');
+    if (!select) return;
+    select.innerHTML = '<option value="">講座を選んでください</option>';
+    Object.keys(courseMap).sort().forEach(code => {
+      const opt = document.createElement('option');
+      opt.value = code;
+      opt.textContent = courseMap[code];
+      select.appendChild(opt);
+    });
+  }
+
+  async function receptionSearch() {
+    const rawQuery = document.getElementById('receptionSearchInput').value.trim();
+    const resultsDiv = document.getElementById('receptionSearchResults');
+    const errorMsg = document.getElementById('receptionErrorMsg');
+    if (rawQuery.length < 1) { resultsDiv.innerHTML = ''; errorMsg.style.display = 'none'; return; }
+    clearTimeout(receptionSearchTimer);
+    receptionSearchTimer = setTimeout(async () => {
+      const katakanaQuery = toKatakanaQuery(rawQuery);
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/participants?or=(real_name.ilike.*${katakanaQuery}*,nickname.ilike.*${rawQuery}*,nickname.ilike.*${katakanaQuery}*)&select=*`,
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } });
+      const data = await res.json();
+      if (!data || data.length === 0) { resultsDiv.innerHTML = ''; errorMsg.style.display = 'block'; return; }
+      errorMsg.style.display = 'none';
+      const stampsRes = await fetch(`${SUPABASE_URL}/rest/v1/stamps?select=participant_id`,
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } });
+      const stamps = await stampsRes.json();
+      const stampMap = {};
+      stamps.forEach(s => stampMap[s.participant_id] = (stampMap[s.participant_id] || 0) + 1);
+      const countLabel = data.length > 1 ? `<div style="font-size:12px;color:var(--muted);margin-bottom:6px">${data.length}件見つかりました</div>` : '';
+      resultsDiv.innerHTML = countLabel + data.map(p => `
+        <div style="background:#FAF5FF;border-radius:14px;padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;border:1.5px solid #E8D8F8" onclick="receptionSelectParticipant(${p.id}, '${p.nickname}', '${p.real_name}', ${stampMap[p.id] || 0})">
+          <div>
+            <div style="font-size:16px;font-weight:bold;color:var(--text)">${p.nickname} さん</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">${p.real_name}</div>
+          </div>
+          <div style="font-size:18px;font-weight:bold;color:var(--primary);background:#FFF0F8;border-radius:20px;padding:4px 12px">🌟${stampMap[p.id] || 0}</div>
+        </div>`).join('');
+    }, 300);
+  }
+
+  async function receptionSelectParticipant(id, nickname, realName, stampCount) {
+    receptionCurrentParticipant = { id, nickname, realName };
+    receptionCurrentStampCount = stampCount;
+    document.getElementById('receptionSelectedName').textContent = `${nickname} さん（${realName}）`;
+    document.getElementById('receptionSelectedStamps').textContent = stampCount;
+    document.getElementById('receptionSelectedCard').style.display = 'block';
+    document.getElementById('receptionSearchResults').innerHTML = '';
+    document.getElementById('receptionSearchInput').value = '';
+
+    const stampsRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/stamps?participant_id=eq.${id}&select=course_code`,
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } });
+    const stamps = await stampsRes.json();
+    const doneSet = new Set((stamps || []).map(s => s.course_code));
+
+    const historyDiv = document.getElementById('receptionCourseHistory');
+    if (stamps && stamps.length > 0) {
+      historyDiv.innerHTML = '<div style="font-size:12px;color:var(--muted);margin-bottom:6px">📚 受講済み：</div>' +
+        stamps.map(s => `<span style="display:inline-block;background:#E8F8F0;border:1px solid #A8E8C0;border-radius:20px;padding:4px 10px;font-size:11px;margin:2px;color:#3A7A50">${courseMap[s.course_code] || s.course_code}</span>`).join('');
+    } else {
+      historyDiv.innerHTML = '<div style="font-size:12px;color:var(--muted)">📚 まだ受講していません</div>';
+    }
+
+    const select = document.getElementById('receptionCourseSelect');
+    Array.from(select.options).forEach(opt => {
+      if (!opt.value) return;
+      if (doneSet.has(opt.value)) {
+        opt.text = '✅ 済 ' + (courseMap[opt.value] || opt.value);
+        opt.style.color = '#AAA';
+      } else {
+        opt.text = courseMap[opt.value] || opt.value;
+        opt.style.color = '';
+      }
+    });
+  }
+
+  async function receptionAddStamp() {
+    const courseCode = document.getElementById('receptionCourseSelect').value;
+    if (!courseCode) { alert('講座を選んでください'); return; }
+    if (!receptionCurrentParticipant) return;
+    const dupRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/stamps?participant_id=eq.${receptionCurrentParticipant.id}&course_code=eq.${courseCode}&select=id`,
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } });
+    const dupStamps = await dupRes.json();
+    if (dupStamps && dupStamps.length > 0) { alert('この講座のスタンプはすでに押されています！'); return; }
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/stamps`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ participant_id: receptionCurrentParticipant.id, course_code: courseCode, stamped_at: new Date().toISOString() })
+    });
+    if (res.ok) {
+      receptionCurrentStampCount++;
+      document.getElementById('receptionSelectedStamps').textContent = receptionCurrentStampCount;
+      let msg = `${receptionCurrentParticipant.nickname}さん ${receptionCurrentStampCount}個目！`;
+      if (receptionCurrentStampCount === 3) msg += '\n🎁 3個達成！プレゼントを渡してください！';
+      else if (receptionCurrentStampCount === 5) msg += '\n🏆 5個達成！スペシャルプレゼントを！';
+      else if (receptionCurrentStampCount === 8) msg += '\n💎 8個達成！プレゼントを渡してください！';
+      else if (receptionCurrentStampCount === 10) msg += '\n👑 10個チャンピオン達成！';
+      alert(msg);
+      const course = courseMap[courseCode] || courseCode;
+      document.getElementById('receptionCourseHistory').innerHTML += `<span style="display:inline-block;background:#E8F8F0;border:1px solid #A8E8C0;border-radius:20px;padding:4px 10px;font-size:11px;margin:2px;color:#3A7A50">${course}</span>`;
+      const select = document.getElementById('receptionCourseSelect');
+      Array.from(select.options).forEach(opt => {
+        if (opt.value === courseCode) { opt.text = '✅ 済 ' + course; opt.style.color = '#AAA'; }
+      });
+      document.getElementById('receptionCourseSelect').value = '';
+      loadParticipants();
+    } else { alert('エラーが発生しました。もう一度試してください。'); }
+  }
+
+  function receptionClearSelection() {
+    receptionCurrentParticipant = null;
+    document.getElementById('receptionSelectedCard').style.display = 'none';
+    document.getElementById('receptionSearchInput').value = '';
   }
 </script>
 </body>
