@@ -889,11 +889,10 @@
 
     // Geminiパンダコメントを非同期で取得して差し替え
     try {
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/panda-comment`, {
+      const res = await fetch('https://gyosai-panda-api.vercel.app/api/panda-comment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${SUPABASE_KEY}`,
         },
         body: JSON.stringify({
           count, p3, p5, p8, p10,
